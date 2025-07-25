@@ -1,4 +1,21 @@
 # real-estate-trends
+
+WRITE-UP REMINDER:
+
+
+    policy write-up for real-estate:
+    keep in mind, this is median income, so this means half of the people in this zip code literally cannot afford these homes.
+    
+    Pivot this:
+    % of residents who could afford these houses ->
+    
+    Show with a chart, a narrative, and a map that people are likely going to be priced out of their neighborhoods. 
+    
+    Affordable housing is generally defined as housing where the gross housing costs (including utilities, taxes, and insurance for homeowners, or contract rent plus utilities for renters) do not exceed 30% of a household's gross income. This threshold is established by organizations like the U.S. Department of Housing and Urban Development (HUD) and is a key factor in determining eligibility for various housing assistance programs. 
+    
+    When housing costs outpace income in a ZIP code, it typically means the area is unaffordable for the average resident. This can drive housing insecurity, gentrification, and economic displacement, and may signal the need for policy intervention, such as affordable housing development, rent controls, or income supports.
+
+
 🏡 Project Title:
 
     "Neighborhood Snapshot: Real Estate Trends in [Your City]"
