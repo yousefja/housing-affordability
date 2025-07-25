@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul 24 18:26:00 2025
-
-@author: youse
+File:        affordability_analysis.py
+Description: Processes scraped listing data and calculates affordability metrics.
+Author:      Yuseof
+Created:     2025-07-24
+Modified:    2025-07-24
 """
 
 import ast
@@ -10,57 +12,73 @@ import numpy as np
 import pandas as pd
 from util import format_price
 
-
-PATH_TO_HOUSING_DATA = '../output/scraped_listings.csv'
-PATH_TO_INCOME_DATA = "../data/ACSST5Y2023.S1901_2025-07-24T192912/ACSST5Y2023.S1901-Data.csv"
 # BUFFALO_ZIPS = "14201, 14202, 14203, 14204, 14206, 14207, 14208, 14209, 14210, 14211, 14212, 14213, 14214, 14215, 14216, 14218, 14220, 14222, 14223, 14225, 14226, 14227, 14221, 14224, 14228, 14217, 14425, 14219"
 
-
-df_housing = pd.read_csv(PATH_TO_HOUSING_DATA)
-df_income = pd.read_csv(PATH_TO_INCOME_DATA, header=1)
 
 ###############
 # PREPROCESSING
 ###############
 
-# format housing columns
-df_housing['Price'] = df_housing['Price'].apply(format_price)
-df_housing['Bedrooms'] = pd.to_numeric(df_housing['Bedrooms'], errors='coerce')
-df_housing['Bathrooms'] = pd.to_numeric(df_housing['Bathrooms'], errors='coerce')
-df_housing['SqFt'] = df_housing['SqFt'].replace('[,]', '', regex=True).astype(float)
 
-# calculate cost of house by sqft
-df_housing['Price_Per_SqFt'] = df_housing['Price'] / df_housing['SqFt']
+def preprocess_scraped_listings(df_housing):
+    '''
+    Formats columns from the scraped housing listings from Redfin, and engineers
+    some new features. 
+    '''
+    
+    # format housing columns
+    df_housing['Price'] = df_housing['Price'].apply(format_price)
+    df_housing['Bedrooms'] = pd.to_numeric(df_housing['Bedrooms'], errors='coerce')
+    df_housing['Bathrooms'] = pd.to_numeric(df_housing['Bathrooms'], errors='coerce')
+    df_housing['SqFt'] = df_housing['SqFt'].replace('[,]', '', regex=True).astype(float)
+    
+    # calculate cost of house by sqft
+    df_housing['Price_Per_SqFt'] = df_housing['Price'] / df_housing['SqFt']
+    
+    # ensure zipcode is of type int for merging w income data
+    df_housing['Zipcode'] = df_housing['Zipcode'].astype(int)
 
-# get zip code from geography col
-df_income['Zipcode'] = df_income['Geographic Area Name'].apply(lambda x: int(x.split()[-1].strip()))
+    return df_housing
 
-# get buffalo zips as list of ints
-# buffalo_zips = list(map(int, ast.literal_eval(BUFFALO_ZIPS)))
 
-# no longer needed, filtering happens when joining to the scraped listing data
-# filter census income data for buffalo zips
-# df_income = df_income[df_income.Zipcode.isin(buffalo_zips)]
-# assert(len(df_income) == len(buffalo_zips))
-
-# select only columns of interest from income data
-df_income = df_income[['Estimate!!Households!!Median income (dollars)',
-                       #'Margin of Error!!Households!!Median income (dollars)',
-                       'Zipcode']]
-
-# rename median income column
-df_income.rename(columns={'Estimate!!Households!!Median income (dollars)':'Household_Median_Income'}, inplace=True)
-
-# convert median income to float
-df_income['Household_Median_Income'] = df_income['Household_Median_Income'].astype(float)
+def preprocess_income_data(df_income):
+    '''
+    Formats median household income data from census.
+    '''
+    
+    # get zip code from geography col
+    df_income['Zipcode'] = df_income['Geographic Area Name'].apply(lambda x: int(x.split()[-1].strip()))
+    
+    # get buffalo zips as list of ints
+    # buffalo_zips = list(map(int, ast.literal_eval(BUFFALO_ZIPS)))
+    
+    # no longer needed, filtering happens when joining to the scraped listing data
+    # filter census income data for buffalo zips
+    # df_income = df_income[df_income.Zipcode.isin(buffalo_zips)]
+    # assert(len(df_income) == len(buffalo_zips))
+    
+    # select only columns of interest from income data
+    df_income = df_income[['Estimate!!Households!!Median income (dollars)',
+                           #'Margin of Error!!Households!!Median income (dollars)',
+                           'Zipcode']]
+    
+    # rename median income column
+    df_income = df_income.rename(columns={'Estimate!!Households!!Median income (dollars)':'Household_Median_Income'})
+    
+    # remove rows with '-' for income
+    df_income = df_income[df_income.Household_Median_Income != '-']
+    
+    # remove commas and plus signs (e.g. 250,000+ or 2500-)
+    df_income['Household_Median_Income'] = df_income['Household_Median_Income'].replace('[,]', '', regex=True).replace('[+]', '', regex=True).replace('[-]', '', regex=True)
+    
+    # convert median income to float
+    df_income['Household_Median_Income'] = df_income['Household_Median_Income'].astype(float)
+    
+    return df_income
 
 ###################
 # MERGE INCOME DATA
 ###################
-
-# join income data to housing data
-df_housing['Zipcode'] = df_housing['Zipcode'].astype(int)
-df_analysis = df_housing.merge(df_income, on='Zipcode', how='left')
 
 # TODO:maybe don't filter by buffalo and just have the join to the scraped listing data do the filtering?
 # get rows from df_housing that didn't join
@@ -82,10 +100,13 @@ do not exceed 30% of a household's gross income. This threshold is established b
  eligibility for various housing assistance programs. 
 '''
 
-# gap between affordable price and actual price
-df_analysis['Affordable_Price'] = df_analysis.Household_Median_Income * 3.0
-df_analysis['Affordability_Gap'] = df_analysis.Price - df_analysis.Affordable_Price 
-
+def calculate_individual_affordabilty(df_analysis):
+    
+    # gap between affordable price and actual price
+    df_analysis['Affordable_Price'] = df_analysis.Household_Median_Income * 3.0
+    df_analysis['Affordability_Gap'] = df_analysis.Price - df_analysis.Affordable_Price 
+    
+    return df_analysis
 
 '''
 5. Home Value vs. Area Median Income (AMI) Benchmarks
@@ -96,16 +117,12 @@ Affordable to ≤80% AMI → "affordable housing"
 Affordable to ≤50% AMI → "very low income housing"
 '''
 
-
-
 # ZIP LEVEL METRICS
 
 
 def zipcode_aggregates(df, df_income):
     '''
-    HPI divides the median house price by the median household income. 
-    While a good HPI is generally considered to be between 2 and 3, this can vary significantly 
-    based on local economic conditions and housing availability.
+    Calculate zipcode-level aggregate metrics of affordability
     '''
     
     # get min, max, and median house price per zipcode
@@ -120,7 +137,9 @@ def zipcode_aggregates(df, df_income):
                                   how='left',
                                   on='Zipcode')
     
-    # calculate HPI per zip
+    # HPI divides the median house price by the median household income. 
+    # While a good HPI is generally considered to be between 2 and 3, this can vary significantly 
+    # based on local economic conditions and housing availability.
     df_zip_agg['HPI'] = df_zip_agg.Median_Price / df_zip_agg.Household_Median_Income
     
     # flag zips where lowest house price is > 3x the median income
@@ -129,7 +148,27 @@ def zipcode_aggregates(df, df_income):
     return df_zip_agg
 
 
-df_zip_level_analysis = zipcode_aggregates(df_analysis, df_income)
+def calculate_affordability_metrics(df_housing, df_income):
+    '''
+    Combine all of the functions in this file into one so that it can be called in main.py
+    '''
+    
+    print("Preprocessing listing data...")
+    df_housing = preprocess_scraped_listings(df_housing)
+    
+    print("Preprocessing income data...")
+    df_income = preprocess_income_data(df_income)
+    
+    print("Joining income and listing data...")
+    df_analysis = df_housing.merge(df_income, on='Zipcode', how='left')
+
+    print("Calculating zip level metrics...")
+    df_zip_level_analysis = zipcode_aggregates(df_analysis, df_income)
+    
+    print("Calculating house level metrics...")
+    df_individual_level_analysis = calculate_individual_affordabilty(df_analysis)
+    
+    return df_zip_level_analysis, df_individual_level_analysis
 
 
 '''

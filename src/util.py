@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 File:        util.py
 Description: Provides utility functions to the real estate scraping / housing 
@@ -36,7 +35,7 @@ def format_price(price_string):
     return float(price_string.replace(',', ''))
 
 
-def extract_data(scraped_listings):
+def extract_data(scraped_listings, verbose=False):
     '''
     Given all home listings in a HomeCardContainer, parses each listing one
     by one to get all necessary fields
@@ -92,8 +91,11 @@ def extract_data(scraped_listings):
                 })
         
         except Exception as e:
-            print("Skipping this listing due to the following error: ", e)
+            if verbose:
+                print("Skipping this listing due to the following error: ", e)
+            else:
+                continue
          
-    print(f"Scraped {len(parsed_listing_data)} / {len(scraped_listings)} total listings")
+    print(f"Scraped {len(parsed_listing_data)} / {len(scraped_listings)} listings")
     
     return parsed_listing_data
