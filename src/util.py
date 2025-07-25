@@ -14,6 +14,28 @@ import numpy as np
 from selenium.webdriver.common.by import By
 
 
+def format_price(price_string):
+    '''
+    Converts price string from scraped data to float, and handles conversion if 
+    necessary (e.g. 5k -> 5000).
+    
+    Parameters
+    ----------
+    price_string : str
+
+    Returns
+    -------
+    formatted price as float
+
+    '''
+    price_string = price_string.strip().replace('$', '')
+    if 'K' in price_string:
+        return float(price_string.replace('K', '')) * 1_000
+    elif 'M' in price_string:
+        return float(price_string.replace('M', '')) * 1_000_000
+    return float(price_string.replace(',', ''))
+
+
 def extract_data(scraped_listings):
     '''
     Given all home listings in a HomeCardContainer, parses each listing one

@@ -77,6 +77,9 @@ df_listings['Agency_Contact'] = df_listings['Agency_Contact'].apply(lambda x: "(
 # get zip code column
 df_listings['Zipcode'] = df_listings['Address'].apply(lambda x: x.split()[-1])
 
+# get only numeric portion of the Bedroom, Bathroom, and SqFt column values
+df_listings[['Bedrooms', 'Bathrooms', 'SqFt']] = x = df_listings[['Bedrooms', 'Bathrooms', 'SqFt']].applymap(lambda x: x.split()[0])
+
 # reorder columns and remove unneeded columns
 df_listings = df_listings[['Price',
                             'Address',
