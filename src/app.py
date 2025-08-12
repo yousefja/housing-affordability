@@ -24,46 +24,83 @@ from config import (
 from datetime import datetime
 
 
+#####################
+# HELPERS AND CACHING
+#####################
+
+# NOTE: caching prevents flickering in streamlit UI since results are stored rather than 
+# code rerunning / resources realoading every time
+
+
+@st.cache_data
+def load_zip_analysis(path=PATH_TO_OUTPUT_ZIP_METRICS): 
+    
+    # load data
+    df = pd.read_csv(path) 
+    
+    # zip as str for join
+    df["Zipcode"] = df["Zipcode"].astype(str).apply(lambda x: x.strip())
+    
+    # round PIR to one decimal
+    df["PIR"] = df["PIR"].apply(lambda x: round(x, 1))
+    
+    # include formatted median income field for map viz
+    df["Household_Median_Income_Formatted"] = df[
+        "Household_Median_Income"
+    ].apply(lambda x: "$" + format(x, ","))
+    
+    return df
+
+
+@st.cache_data
+def load_house_listings(path=PATH_TO_OUTPUT_HOUSE_METRICS):
+    df = pd.read_csv(path)
+    return df 
+
+
+@st.cache_data
+def load_zip_shapes(path=PATH_TO_ZIP_SHAPEFILE):
+    
+    # load data
+    gdf = gpd.read_file(path)
+    
+    # remove any null geometries
+    gdf = gdf[gdf["geometry"].notnull()].copy()
+    
+    # format zip col
+    gdf.rename(columns={'GEOID20':'Zipcode'}, inplace=True)
+    gdf["Zipcode"] = gdf["Zipcode"].astype(str)
+    
+    return gdf
+
+    
 ###########
 # LOAD DATA
 ###########
 
-df_zip_analysis = pd.read_csv(PATH_TO_OUTPUT_ZIP_METRICS)
-df_house_analysis = pd.read_csv(PATH_TO_OUTPUT_HOUSE_METRICS)
-gdf_zip_shapes = gpd.read_file(PATH_TO_ZIP_SHAPEFILE)
+df_zip_analysis = load_zip_analysis()
+df_house_analysis = load_house_listings()
+gdf_zip_shapes = load_zip_shapes()
 
 ###############
 # PREPROCESSING
 ###############
 
-# round hpi to one decimal
-df_zip_analysis["HPI"] = df_zip_analysis["HPI"].apply(lambda x: round(x, 1))
-
-# add commas to prices
-
+# TODO: figure out how to cache this so UI runs smoother
+#@st.cache_date
+#def preprocess_dfs(df_zip_analysis, ):
+    
 # merge zip affordability metrics with zip gdf
-df_zip_analysis["Zipcode"] = (
-    df_zip_analysis["Zipcode"].astype(str).apply(lambda x: x.strip())
-)
+
 gdf_zip_analysis = df_zip_analysis.merge(
-    gdf_zip_shapes, how="left", left_on="Zipcode", right_on="GEOID20"
+    gdf_zip_shapes, how="left", on="Zipcode"
 )
-
-# remove any null geometries
-gdf_zip_analysis = gdf_zip_analysis[gdf_zip_analysis["geometry"].notnull()].copy()
-
-# TODO: flatten this instead of removing it
-# gdf_zip_analysis.drop(19, inplace=True)
-
-# include formatted median income field for map viz
-gdf_zip_analysis["Household_Median_Income_Formatted"] = gdf_zip_analysis[
-    "Household_Median_Income"
-].apply(lambda x: "$" + format(x, ",")[:-2])
 
 # select only relevant columns
 gdf_zip_map = gdf_zip_analysis[
-    ["Zipcode", "GEOID20", "HPI", "geometry", "Household_Median_Income_Formatted"]
+    ["Zipcode", "PIR", "geometry", "Household_Median_Income_Formatted"]
 ].copy()
+
 geojson_map = {
     "type": "FeatureCollection",
     "features": [
@@ -72,8 +109,7 @@ geojson_map = {
             "geometry": geom.__geo_interface__,
             "properties": {
                 "Zipcode": row.Zipcode,
-                "HPI": row.HPI,
-                "GEOID20": row.GEOID20,
+                "PIR": row.PIR,
                 "Household_Median_Income_Formatted": row.Household_Median_Income_Formatted,
             },
         }
@@ -97,8 +133,7 @@ st.title("🏠 Housing Affordability Explorer")
 st.markdown(
     """
     <div style='text-align: center'>
-    Visualizing the gap between affordable home prices and market rates.<br>
-    Use the map below to explore affordability and house prices by zipcode. 
+    Visualizing the gap between affordable home prices and current market rates.<br>
     <div>
     """,
     unsafe_allow_html=True,
@@ -112,26 +147,43 @@ tab1, tab2, tab3 = st.tabs(["🗺 Map View", "📊 Charts", "📋 Data Table"])
 # selected_zip = st.sidebar.selectbox("Choose a ZIP Code", options=df_house_analysis["Zipcode"].unique())
 # min_price = st.sidebar.slider("Minimum Price", 0, int(df_house_analysis["Price"].max()), 100000)
 
+# ------- FILTERS -------
 
-# ------- MAP -------
+st.sidebar.header("Filters")
+
+# zip filter
+zip_options = sorted(df_zip_analysis['Zipcode'].unique().tolist())
+selected_zip = st.sidebar.selectbox("Zipcode", ['All'] + zip_options)
+
+# house price filter
+min_price, max_price = int(df_house_analysis.Price.min()), int(df_house_analysis.Price.max())
+price_range = st.sidebar.slider("Price Range",
+                                min_value=min_price, 
+                                max_value=max_price,
+                                value=(min_price, max_price), step=10000
+                                )
+
+# TODO: apply filters
+
+# --------- MAP ---------
 
 # create folium map
 map = folium.Map(location=[42.9159281, -78.7487142], zoom_start=11)
 
 # create custom bins for the gradient colors for the choropleth
-custom_bins = [x for x in range(math.ceil(df_zip_analysis.HPI.max()) + 2)]
+custom_bins = [x for x in range(math.ceil(df_zip_analysis.PIR.max()) + 2)]
 
 # choropleth layer
 folium.Choropleth(
     geo_data=geojson_map,
     name="Affordability by ZIP",
     data=df_zip_analysis,
-    columns=["Zipcode", "HPI"],
+    columns=["Zipcode", "PIR"],
     key_on="feature.properties.Zipcode",
     fill_color="YlOrRd",
     fill_opacity=0.7,
     line_opacity=0.2,
-    legend_name="HPI Ratio",
+    legend_name="PIR Ratio",
     threshold_scale=custom_bins,
 ).add_to(map)
 
@@ -140,8 +192,8 @@ folium.GeoJson(
     geojson_map,
     name="Zipcode Tooltips",
     tooltip=folium.GeoJsonTooltip(
-        fields=["Zipcode", "HPI", "Household_Median_Income_Formatted"],
-        aliases=["Zipcode", "HPI", "Median Income"],
+        fields=["Zipcode", "PIR", "Household_Median_Income_Formatted"],
+        aliases=["Zipcode", "PIR", "Median Income"],
     ),
     style_function=lambda x: {"fillOpacity": 0, "color": "transparent"},
 ).add_to(map)
@@ -166,14 +218,85 @@ for _, row in df_house_analysis.iterrows():
 
 # show map in streamlit
 with tab1:
-    col1, col2, col3 = st.columns(3)
+        
+    # kpi columns
+    col1, col2, col3, col4 = st.columns([1.5,2,2,1])
     col1.metric("Total Homes", len(df_house_analysis))
-    col2.metric("Median Price", f"${int(df_house_analysis['Price'].median()):,}")
+    col2.metric("Median Home Price", f"${int(df_house_analysis['Price'].median()):,}")
     col3.metric(
         "Median Affordability Gap",
         f"${int(df_house_analysis['Affordability_Gap'].median()):,}",
     )
-    st_folium(map, width=800, height=600)
+    col4.metric("% Affordable",
+                f"{math.trunc((len(df_house_analysis[df_house_analysis.Affordability_Gap == 0]) / len(df_house_analysis)) * 100)}%")
+    
+    
+    # map and summary cards placed in same container to avoid massive spacing between them
+    map_container = st.container()
+    
+    with map_container:
+    
+        st_folium(map, width=800, height=600)
+            
+        # summary cols
+        most_aff, least_aff = st.columns(2)
+        
+        with most_aff:
+            
+            # least affordable neighborhoods (Recc: These neighborhoods Need pricing support)
+            df_most_aff = df_zip_analysis.sort_values('PIR').head(3)[['Zipcode', 'PIR']]
+            
+            insights_html = """
+            <div style="
+                padding:15px;
+                background-color:#007506;
+                border-radius:10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                color: white;
+            ">
+                <h4 style="margin-top:0;">⬆️ Most Affordable Areas</h4>
+                <ul style="padding-left:20px; margin:0;">
+            """
+        
+            for _, row in df_most_aff.iterrows():
+                insights_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.0f}</li>"
+            
+            insights_html += """
+                </ul>
+            </div>
+            """
+            
+            st.markdown(insights_html, unsafe_allow_html=True)
+            
+        with least_aff:
+            
+            # least affordable neighborhoods (Recc: These neighborhoods Need pricing support)
+            df_least_aff = df_zip_analysis.sort_values('PIR').tail(3)[['Zipcode', 'PIR']]
+            
+            insights_html = """
+            <div style="
+                padding:15px;
+                background-color:#B30000;
+                border-radius:10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                color: white;
+            ">
+                <h4 style="margin-top:0;">⬇️ Least Affordable Areas</h4>
+                <ul style="padding-left:20px; margin:0;">
+            """
+        
+            for _, row in df_least_aff.iterrows():
+                insights_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.0f}</li>"
+        
+            insights_html += """
+                </ul>
+            </div>
+            """
+            
+            st.markdown(insights_html, unsafe_allow_html=True)
+        
+        # padding under summary cards
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # st.markdown("<br>", unsafe_allow_html=True)  # Add some vertical space
 # st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
@@ -187,13 +310,14 @@ with st.expander("ℹ️ About this dashboard"):
 
     - **Affordable Price** = Median Income x 3
     - **Affordability Gap** = House Price - Affordable Price
+    - **PIR** (Price to Income Ratio) = Median House Price / Median Income
     - **Red Pins** indicate unaffordable homes.
     - **Green Pins** indicate affordable homes.
 
     Data is updated weekly.
     """
     )
-
+    
 # Display last refreshed timestamp at top of page
 st.markdown(
     f"""
@@ -203,9 +327,6 @@ st.markdown(
             """,
     unsafe_allow_html=True,
 )
-
-if st.button("🔁 Refresh Now"):
-    st.rerun()
 
 # st.markdown("""<hr style="margin-top: 50px;">""", unsafe_allow_html=True)
 # st.markdown("Built by Yousef J. | 📫 [Contact](mailto:your@email.com)", unsafe_allow_html=True)
