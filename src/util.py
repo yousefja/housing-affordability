@@ -9,14 +9,78 @@ Modified:    2025-07-24
 Usage:       --
 """
 
-import ast
+import time
+import random
 import traceback
 import requests
 import numpy as np
 import pandas as pd
 from pyairtable import Api
+from selenium import webdriver
+import undetected_chromedriver as uc
+from config import OPEN_MAPS_API_URL, CHROME_STABLE_VERSION
 from selenium.webdriver.common.by import By
-from config import OPEN_MAPS_API_URL
+from selenium_stealth import stealth
+
+
+def instantiate_driver(headless=True, chrome_stable_version=CHROME_STABLE_VERSION):
+    """
+    Handles creation of webdriver
+
+    Parameters
+    ----------
+    headless : TYPE, optional
+        whether or not to run chrome driver in headless mode
+
+    Returns
+    -------
+    driver : chrome webdriver
+    """
+
+    user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+              "AppleWebKit/537.36 (KHTML, like Gecko) "
+              "Chrome/115.0.0.0 Safari/537.36")
+
+    options = uc.ChromeOptions()
+    options.add_argument("--headless=new")        # headless in container
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument(f"user-agent={user_agent}")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--lang=en-US,en;q=0.9")
+    
+    driver = uc.Chrome(options=options)
+    
+    # Apply stealth
+    stealth(driver,
+            languages=["en-US","en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            fix_hairline=True)
+        
+    ###########
+    # DEBUGGING
+    ###########
+    driver.get("https://www.redfin.com/city/2832/NY/Buffalo")
+    driver.save_screenshot("driver-debug.png")
+
+
+    # download and instantiate webriver        
+    try:
+        # if running in container, this env variable will be set
+        #chrome_driver_path = os.getenv("CHROME_PATH")
+        #driver = webdriver.Chrome(service=Service(chrome_driver_path), options=options)
+        driver = uc.Chrome(options=options)
+        print("Driver instantiated from env var path.")
+    except Exception:
+        # if running locally, auto detect chrome driver
+        print("No path found for chrome driver, trying auto detect.")
+        driver = webdriver.Chrome(options=options)
+            
+    return driver
 
 
 def format_price(price_string):
@@ -83,34 +147,26 @@ def extract_data(scraped_listings, verbose=False):
                 # print(f"Failed while scraping description. Error: {e}")
                 description_scraped = False
 
-            if description_scraped:
-                parsed_listing_data.append(
-                    {
-                        "Price": price,
-                        "Address": address,
-                        "Specs": specs,
-                        "Description": description,
-                        "Listed_By": listed_by,
-                        # "URL": link
-                    }
-                )
-            else:
-                parsed_listing_data.append(
-                    {
-                        "Price": price,
-                        "Address": address,
-                        "Specs": specs,
-                        "Description": np.nan,
-                        "Listed_By": listed_by,
-                        # "URL": link
-                    }
-                )
+        
+            parsed_listing_data.append(
+                {
+                    "Price": price,
+                    "Address": address,
+                    "Specs": specs,
+                    "Description": description if description_scraped else np.nan,
+                    "Listed_By": listed_by,
+                    # "URL": link
+                }
+            )
 
         except Exception as e:
             if verbose:
                 print("Skipping this listing due to the following error: ", e)
             else:
                 continue
+        
+        # small random delay to mimic human behavior
+        time.sleep(random.uniform(0.05, 0.15))
 
     print(f"Scraped {len(parsed_listing_data)} / {len(scraped_listings)} listings")
 
@@ -145,8 +201,8 @@ def parse_address(address_str):
 
 def address_to_lat_lng(parsed_address):
     """
-    Use either the parsed address to get the corresponding latitude and longitude using
-    open maps api
+    Use parsed address to get the corresponding latitude and longitude using
+    open maps api (i.e. goecoding)
 
     Parameters
     ----------
@@ -177,6 +233,7 @@ def address_to_lat_lng(parsed_address):
         )
         response.raise_for_status()
         data = response.json()
+        time.sleep(1) # wait 1 sec bw api calls as per openstreemaps policy
         if data:
             return [data[0]["lat"], data[0]["lon"]]
         else:
@@ -185,6 +242,7 @@ def address_to_lat_lng(parsed_address):
     except Exception:
         print(f"Error retrieving coordinates for adress: {parsed_address}")
         print(traceback.format_exc())
+        time.sleep(1) # wait 1 sec bw api calls as per openstreemaps policy
         return None
 
 
@@ -199,6 +257,9 @@ def upload_to_airtable(access_token, base_id, table_name, df):
     table_name = TABLE_NAME
     df=df_house_level_analysis.copy()
     """
+    
+    if not access_token or not base_id:
+        raise Exception("Airtable secrets not set")
 
     api = Api(access_token)
     table = api.table(base_id, table_name)

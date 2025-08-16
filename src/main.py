@@ -9,10 +9,12 @@ Usage:       python main.py
 """
 
 import ast
+import logging
+import argparse
 import pandas as pd
-from util import address_to_lat_lng, upload_to_airtable
 from scraper import scrape_listings, process_listing_data
 from affordability_analysis import calculate_affordability_metrics
+from util import address_to_lat_lng, upload_to_airtable, instantiate_driver
 from config import (
     HOUSING_URL,
     MAX_LISTINGS,
@@ -26,11 +28,16 @@ from config import (
 )
 
 
-def main():
+def main(headless=True):
+    
+    # scrape, process, and output listing data
+    print("Initiating webdriver...")
+    driver = instantiate_driver(headless)
+    print("Webdriver created successfully!")
 
     # scrape, process, and output listing data
     print("Scraping initiated...")
-    listing_data = scrape_listings(HOUSING_URL, MAX_LISTINGS)
+    listing_data = scrape_listings(driver, HOUSING_URL, MAX_LISTINGS)
     process_listing_data(listing_data, PATH_TO_LISTINGS_OUTPUT)
     print("Scraping successful!")
 
@@ -81,4 +88,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--headless", type=bool, default=True)
+    args = parser.parse_args()
+    main(headless=args.headless)

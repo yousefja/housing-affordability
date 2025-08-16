@@ -9,8 +9,9 @@ Modified:    2025-07-24
 
 import sys
 import time
+import random
+from 
 import pandas as pd
-from selenium import webdriver
 from util import extract_data, parse_address
 from selenium.webdriver.common.by import By
 
@@ -20,12 +21,9 @@ from selenium.webdriver.common.by import By
 ###############
 
 
-def scrape_listings(housing_listings_url, max_listings):
-
-    # instantiate chrome driver and options
-    options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")  # run without opening browser window
-    driver = webdriver.Chrome(options=options)
+def scrape_listings(driver, housing_listings_url, max_listings):
+    
+    # housing_listings_url = HOUSING_URL
 
     # open property listings url
     driver.get(housing_listings_url)
