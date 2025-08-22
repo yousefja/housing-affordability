@@ -9,12 +9,11 @@ Usage:       python main.py
 """
 
 import ast
-import logging
 import argparse
 import pandas as pd
-from scraper import scrape_listings, process_listing_data
+from util import address_to_lat_lng, upload_to_airtable
 from affordability_analysis import calculate_affordability_metrics
-from util import address_to_lat_lng, upload_to_airtable, instantiate_driver
+from scraper import scrape_listings, process_listing_data, instantiate_driver
 from config import (
     HOUSING_URL,
     MAX_LISTINGS,
@@ -22,7 +21,8 @@ from config import (
     PATH_TO_INCOME_DATA,
     PATH_TO_OUTPUT_ZIP_METRICS,
     PATH_TO_OUTPUT_HOUSE_METRICS,
-    TABLE_NAME,
+    HOUSE_TABLE_NAME,
+    ZIP_TABLE_NAME,
     BASE_ID,
     AIRTABLE_ACCESS_TOKEN,
 )
@@ -72,15 +72,21 @@ def main(headless=True):
     print("Geolocation successful!")
 
     # output results
-    print("Saving data locally...")
-    df_zip_level_analysis.to_csv(PATH_TO_OUTPUT_ZIP_METRICS, index=False)
-    df_house_level_analysis.to_csv(PATH_TO_OUTPUT_HOUSE_METRICS, index=False)
-    print("Saved successfully!")
+    # print("Saving data locally...")
+    # df_zip_level_analysis.to_csv(PATH_TO_OUTPUT_ZIP_METRICS, index=False)
+    # df_house_level_analysis.to_csv(PATH_TO_OUTPUT_HOUSE_METRICS, index=False)
+    # print("Saved successfully!")
 
-    print("Uploading data to Airtable...")
+    print("Uploading house-level data to Airtable...")
     df_house_level_analysis.drop(columns=["Parsed_Address"], inplace=True)
     upload_to_airtable(
-        AIRTABLE_ACCESS_TOKEN, BASE_ID, TABLE_NAME, df_house_level_analysis
+        AIRTABLE_ACCESS_TOKEN, BASE_ID, HOUSE_TABLE_NAME, df_house_level_analysis
+    )
+    print("Upload Successful!")
+    
+    print("Uploading zip-level data to Airtable...")
+    upload_to_airtable(
+        AIRTABLE_ACCESS_TOKEN, BASE_ID, ZIP_TABLE_NAME, df_zip_level_analysis
     )
     print("Upload Successful!")
 

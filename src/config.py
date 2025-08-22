@@ -25,7 +25,8 @@ PATH_TO_OUTPUT_ZIP_METRICS = "../data/output/zip_metrics.csv"
 PATH_TO_OUTPUT_HOUSE_METRICS = "../data/output/house_metrics.csv"
 
 # for airtable upload
-TABLE_NAME = "Table 1"
+HOUSE_TABLE_NAME = "House Listings"
+ZIP_TABLE_NAME = "Zip Metrics"
 BASE_ID = os.getenv("AIRTABLE_BASE_NAME")
 AIRTABLE_ACCESS_TOKEN = os.getenv("AIRTABLE_ACCESS_TOKEN")
 
