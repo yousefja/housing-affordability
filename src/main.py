@@ -17,7 +17,6 @@ from scraper import scrape_listings, process_listing_data, instantiate_driver
 from config import (
     HOUSING_URL,
     MAX_LISTINGS,
-    PATH_TO_LISTINGS_OUTPUT,
     PATH_TO_INCOME_DATA,
     #PATH_TO_OUTPUT_ZIP_METRICS,
     #PATH_TO_OUTPUT_HOUSE_METRICS,
@@ -50,10 +49,6 @@ def main(headless=True):
     print("Affordability Calculations successful!")
 
     print("Performing geolocation...")
-    # first ensure parsed address list is of type list and not string, then geolocate
-    df_house_level_analysis["Parsed_Address"] = df_house_level_analysis[
-        "Parsed_Address"
-    ].apply(lambda x: ast.literal_eval(x.strip()))
     df_house_level_analysis["Lat_Lng"] = df_house_level_analysis[
         "Parsed_Address"
     ].apply(lambda x: address_to_lat_lng(x))
