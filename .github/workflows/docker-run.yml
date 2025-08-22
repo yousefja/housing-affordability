@@ -1,0 +1,20 @@
+name: Run Docker Container
+
+on:
+  workflow_dispatch:   # allows manual trigger from GitHub UI
+  schedule:
+    - cron: "0 12 * * 0"  # every Sunday at 12:00 UTC 
+
+jobs:
+  run-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t my-app .
+
+      - name: Run container
+        run: docker run --rm my-app
