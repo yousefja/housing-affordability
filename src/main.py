@@ -19,8 +19,8 @@ from config import (
     MAX_LISTINGS,
     PATH_TO_LISTINGS_OUTPUT,
     PATH_TO_INCOME_DATA,
-    PATH_TO_OUTPUT_ZIP_METRICS,
-    PATH_TO_OUTPUT_HOUSE_METRICS,
+    #PATH_TO_OUTPUT_ZIP_METRICS,
+    #PATH_TO_OUTPUT_HOUSE_METRICS,
     HOUSE_TABLE_NAME,
     ZIP_TABLE_NAME,
     BASE_ID,
@@ -38,12 +38,11 @@ def main(headless=True):
     # scrape, process, and output listing data
     print("Scraping initiated...")
     listing_data = scrape_listings(driver, HOUSING_URL, MAX_LISTINGS)
-    process_listing_data(listing_data, PATH_TO_LISTINGS_OUTPUT)
+    df_listings = process_listing_data(listing_data)
     print("Scraping successful!")
 
     # calculate affordability
     print("Affordability Calculations initiated...")
-    df_listings = pd.read_csv(PATH_TO_LISTINGS_OUTPUT)
     df_income = pd.read_csv(PATH_TO_INCOME_DATA, header=1)
     df_zip_level_analysis, df_house_level_analysis = calculate_affordability_metrics(
         df_listings, df_income

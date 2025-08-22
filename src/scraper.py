@@ -269,7 +269,7 @@ def extract_data(scraped_listings, verbose=False):
 #################
 
 
-def process_listing_data(listing_data, output_path):
+def process_listing_data(listing_data):
 
     # convert scraped data to df
     df_listings = pd.DataFrame(listing_data)
@@ -321,5 +321,5 @@ def process_listing_data(listing_data, output_path):
         ]
     ]
 
-    # export scraped data
-    df_listings.to_csv(output_path, index=False)
+    # return scraped data
+    return df_listings
