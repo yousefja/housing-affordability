@@ -16,5 +16,5 @@ jobs:
       - name: Build Docker image
         run: docker build -t my-app .
 
-      - name: Run container
-        run: docker run --rm my-app
+      - name: Run container with env vars
+        run: docker run --rm -e AIRTABLE_ACCESS_TOKEN=${{ secrets.AIRTABLE_ACCESS_TOKEN }} -e  AIRTABLE_BASE_NAME=${{ secrets. AIRTABLE_BASE_NAME }} my-app
