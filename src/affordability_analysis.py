@@ -140,11 +140,9 @@ def zipcode_aggregates(df, df_income):
     # get zip median income
     df_zip_agg = df_zip_agg.merge(df_income, how="left", on="Zipcode")
 
-    # HPI divides the median house price by the median household income.
-    # While a good HPI is generally considered to be between 2 and 3, this can vary significantly
-    # based on local economic conditions and housing availability.
-    df_zip_agg["HPI"] = df_zip_agg.Median_Price / df_zip_agg.Household_Median_Income
-    df_zip_agg["HPI"] = df_zip_agg["HPI"].apply(
+    # Price to Income Ratio divides the median house price by the median household income.
+    df_zip_agg["PIR"] = df_zip_agg.Median_Price / df_zip_agg.Household_Median_Income
+    df_zip_agg["PIR"] = df_zip_agg["PIR"].apply(
         lambda x: round(x, 1)
     )  # round to 1 decimal
 

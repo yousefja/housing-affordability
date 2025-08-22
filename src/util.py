@@ -9,13 +9,13 @@ Modified:    2025-07-24
 Usage:       --
 """
 
-import ast
+import time
+import random
 import traceback
 import requests
 import numpy as np
 import pandas as pd
 from pyairtable import Api
-from selenium.webdriver.common.by import By
 from config import OPEN_MAPS_API_URL
 
 
@@ -41,82 +41,6 @@ def format_price(price_string):
     return float(price_string.replace(",", ""))
 
 
-def extract_data(scraped_listings, verbose=False):
-    """
-    Given all home listings in a HomeCardContainer, parses each listing one
-    by one to get all necessary fields
-
-    Parameters
-    ----------
-    scraped_listings : list of WebElements
-
-    Returns
-    -------
-    parsed_listing_data : list of dicts
-    """
-
-    # extract desired fields from each listing
-    parsed_listing_data = []
-    for listing in scraped_listings:
-
-        # reset description scraped flag
-        description_scraped = True
-
-        try:
-            price = listing.find_element(
-                By.CLASS_NAME, "bp-Homecard__Price--value"
-            ).text
-            specs = listing.find_element(By.CLASS_NAME, "bp-Homecard__Stats").text
-            address = listing.find_element(By.CLASS_NAME, "bp-Homecard__Address").text
-            listed_by = listing.find_element(
-                By.CLASS_NAME, "bp-Homecard__Attribution"
-            ).text
-            # TODO: URL = listing.find_element(By.CLASS_NAME, "bp-Homecard__Price--value").text
-            # TODO: there were also coordinates that are scrapeable
-
-            try:
-                description = listing.find_element(
-                    By.CLASS_NAME, "bp-Homecard__ContentExtension"
-                ).text
-            except Exception as e:
-                # TODO: put this in an error logs file, its printing alot of errors to console
-                # print(f"Failed while scraping description. Error: {e}")
-                description_scraped = False
-
-            if description_scraped:
-                parsed_listing_data.append(
-                    {
-                        "Price": price,
-                        "Address": address,
-                        "Specs": specs,
-                        "Description": description,
-                        "Listed_By": listed_by,
-                        # "URL": link
-                    }
-                )
-            else:
-                parsed_listing_data.append(
-                    {
-                        "Price": price,
-                        "Address": address,
-                        "Specs": specs,
-                        "Description": np.nan,
-                        "Listed_By": listed_by,
-                        # "URL": link
-                    }
-                )
-
-        except Exception as e:
-            if verbose:
-                print("Skipping this listing due to the following error: ", e)
-            else:
-                continue
-
-    print(f"Scraped {len(parsed_listing_data)} / {len(scraped_listings)} listings")
-
-    return parsed_listing_data
-
-
 def parse_address(address_str):
     """
     Parse individual address fields from an address string
@@ -136,7 +60,7 @@ def parse_address(address_str):
         county = ""
         street = address_str[0]
 
-    except Exception as e:
+    except Exception:
         print(f"Unrecognized address format: {address_str}")
         return None
 
@@ -145,8 +69,8 @@ def parse_address(address_str):
 
 def address_to_lat_lng(parsed_address):
     """
-    Use either the parsed address to get the corresponding latitude and longitude using
-    open maps api
+    Use parsed address to get the corresponding latitude and longitude using
+    open maps api (i.e. goecoding)
 
     Parameters
     ----------
@@ -177,6 +101,7 @@ def address_to_lat_lng(parsed_address):
         )
         response.raise_for_status()
         data = response.json()
+        time.sleep(1) # wait 1 sec bw api calls as per openstreemaps policy
         if data:
             return [data[0]["lat"], data[0]["lon"]]
         else:
@@ -185,6 +110,7 @@ def address_to_lat_lng(parsed_address):
     except Exception:
         print(f"Error retrieving coordinates for adress: {parsed_address}")
         print(traceback.format_exc())
+        time.sleep(1) # wait 1 sec bw api calls as per openstreemaps policy
         return None
 
 
@@ -199,15 +125,19 @@ def upload_to_airtable(access_token, base_id, table_name, df):
     table_name = TABLE_NAME
     df=df_house_level_analysis.copy()
     """
+    
+    if not access_token or not base_id:
+        raise Exception("Airtable secrets not set")
 
     api = Api(access_token)
     table = api.table(base_id, table_name)
 
     # get df in format expected by airtable
+    if "House" in table_name:
+        df["Lat"] = pd.to_numeric(df["Lat"], errors="coerce")
+        df["Lng"] = pd.to_numeric(df["Lng"], errors="coerce")
     df.replace([np.nan], None, inplace=True)
-    df["Lat"] = pd.to_numeric(df["Lat"], errors="coerce")
-    df["Lng"] = pd.to_numeric(df["Lng"], errors="coerce")
     records = [{"fields": row} for row in df.to_dict(orient="records")]
 
     # upload to airtable
-    _ = table.batch_upsert(records, key_fields=["Price", "Address"])
+    _ = table.batch_upsert(records, key_fields=[df.columns[0], df.columns[1]])

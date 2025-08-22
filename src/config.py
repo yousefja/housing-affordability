@@ -10,9 +10,10 @@ Modified:    2025-07-24
 import os
 
 # for scraper
+CHROME_STABLE_VERSION = "116.0.5845.140"
 HOUSING_URL = "https://www.redfin.com/city/2832/NY/Buffalo"
 PATH_TO_LISTINGS_OUTPUT = "../data/output/scraped_listings.csv"
-MAX_LISTINGS = 200
+MAX_LISTINGS = 20
 
 # for affordability analaysis
 PATH_TO_INCOME_DATA = (
@@ -24,7 +25,8 @@ PATH_TO_OUTPUT_ZIP_METRICS = "../data/output/zip_metrics.csv"
 PATH_TO_OUTPUT_HOUSE_METRICS = "../data/output/house_metrics.csv"
 
 # for airtable upload
-TABLE_NAME = "Table 1"
+HOUSE_TABLE_NAME = "House Listings"
+ZIP_TABLE_NAME = "Zip Metrics"
 BASE_ID = os.getenv("AIRTABLE_BASE_NAME")
 AIRTABLE_ACCESS_TOKEN = os.getenv("AIRTABLE_ACCESS_TOKEN")
 
