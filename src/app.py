@@ -8,18 +8,22 @@ Modified:    2025-07-29
 Usage:       --
 """
 
+import os
 import math
 import folium
 import numpy as np
 import pandas as pd
-import pydeck as pdk
 import geopandas as gpd
 import streamlit as st
+from pyairtable import Api
 from streamlit_folium import st_folium
 from config import (
-    PATH_TO_OUTPUT_HOUSE_METRICS,
-    PATH_TO_OUTPUT_ZIP_METRICS,
     PATH_TO_ZIP_SHAPEFILE,
+    HOUSE_TABLE_NAME,
+    ZIP_TABLE_NAME,
+    BASE_ID,
+    AIRTABLE_ACCESS_TOKEN
+
 )
 from datetime import datetime
 
@@ -33,10 +37,13 @@ from datetime import datetime
 
 
 @st.cache_data
-def load_zip_analysis(path=PATH_TO_OUTPUT_ZIP_METRICS): 
+def load_zip_analysis(): 
     
     # load data
-    df = pd.read_csv(path) 
+    api = Api(AIRTABLE_ACCESS_TOKEN)
+    table = api.table(BASE_ID, ZIP_TABLE_NAME)
+    rows = table.all()
+    df = pd.json_normalize(r["fields"] for r in rows)
     
     # zip as str for join
     df["Zipcode"] = df["Zipcode"].astype(str).apply(lambda x: x.strip())
@@ -53,10 +60,15 @@ def load_zip_analysis(path=PATH_TO_OUTPUT_ZIP_METRICS):
 
 
 @st.cache_data
-def load_house_listings(path=PATH_TO_OUTPUT_HOUSE_METRICS):
-    df = pd.read_csv(path)
-    return df 
-
+def load_house_listings():
+    
+    # load data
+    api = Api(AIRTABLE_ACCESS_TOKEN)
+    table = api.table(BASE_ID, HOUSE_TABLE_NAME)
+    rows = table.all()
+    df = pd.json_normalize(r["fields"] for r in rows)
+    return df
+    
 
 @st.cache_data
 def load_zip_shapes(path=PATH_TO_ZIP_SHAPEFILE):
@@ -91,6 +103,23 @@ gdf_zip_shapes = load_zip_shapes()
 #def preprocess_dfs(df_zip_analysis, ):
     
 # merge zip affordability metrics with zip gdf
+
+
+# ----------------------------------------------------------------------------------------------------------
+
+##########
+# TODO: TEMPORARY SOLUTION 
+##########
+
+#get only zips for this batch to provce that I can filter the full zipfile for only buffalo zips and be fine 
+
+#gdf_zip_analysis = gdf_zip_shapes.merge(
+#    df_zip_analysis[["Zipcode"]], how="right", on="Zipcode"
+#)
+
+#gdf_zip_analysis.to_file("../data/input/zip_shapefile_filtered.shp", driver='ESRI Shapefile')
+
+# ---------------------------------------------------------------------------------------------------------------
 
 gdf_zip_analysis = df_zip_analysis.merge(
     gdf_zip_shapes, how="left", on="Zipcode"
