@@ -121,7 +121,7 @@ geojson_map = {
             "geometry": geom.__geo_interface__,
             "properties": {
                 "Zipcode": row.Zipcode,
-                "PIR": row.PIR,
+                "Price:Income Ratio": row.PIR,
                 "Household_Median_Income_Formatted": row.Household_Median_Income_Formatted,
             },
         }
@@ -194,7 +194,7 @@ folium.Choropleth(
     fill_color="YlOrRd",
     fill_opacity=0.7,
     line_opacity=0.2,
-    legend_name="PIR Ratio",
+    legend_name="Price to Income Ratio (Affordability Measure)",
     threshold_scale=custom_bins,
 ).add_to(map)
 

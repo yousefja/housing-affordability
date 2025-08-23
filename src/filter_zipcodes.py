@@ -12,7 +12,7 @@ Usage:       --
 """
 
 import geopandas as gpd
-from config import ERIE_COUNTY_ZIPS, CENSUS_ZIP_SHAPEFILE_PATH, PATH_TO_ZIP_SHAPEFILE
+from config import NY_COUNTY_ZIPS, CENSUS_ZIP_SHAPEFILE_PATH, PATH_TO_ZIP_SHAPEFILE
 
 
 def filter_zipcodes():
@@ -22,34 +22,8 @@ def filter_zipcodes():
     
     # filter for erie county zips
     gdf.GEOID20 = gdf.GEOID20.astype(int)
-    gdf = gdf[gdf.GEOID20.isin(ERIE_COUNTY_ZIPS)]
+    gdf = gdf[gdf.GEOID20.isin(NY_COUNTY_ZIPS)]
     
     # output filtered shapefile 
     gdf.to_file(PATH_TO_ZIP_SHAPEFILE, driver='ESRI Shapefile')
     
-
-#gdf_zip_analysis = gdf_zip_shapes.merge(
-#    df_zip_analysis[["Zipcode"]], how="right", on="Zipcode"
-#)
-
-#gdf_zip_analysis.to_file("../data/input/zip_shapefile_filtered.shp", driver='ESRI Shapefile')
-
-# ---------------------------------------------------------------------------------------------------------------
-
-
-def load_zip_shapes(path=PATH_TO_ZIP_SHAPEFILE):
-    
-    # load data
-    gdf = gpd.read_file(path)
-    
-    # remove any null geometries
-    gdf = gdf[gdf["geometry"].notnull()].copy()
-    
-    # format zip col
-    gdf.rename(columns={'GEOID20':'Zipcode'}, inplace=True)
-    gdf["Zipcode"] = gdf["Zipcode"].astype(str)
-    
-    
-    
-    make sure to change function for loading gdf to 
-    if geoid in cols, change name, otherwise use zipcode 
