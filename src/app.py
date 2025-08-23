@@ -121,7 +121,7 @@ geojson_map = {
             "geometry": geom.__geo_interface__,
             "properties": {
                 "Zipcode": row.Zipcode,
-                "Price:Income Ratio": row.PIR,
+                "PIR": row.PIR,
                 "Household_Median_Income_Formatted": row.Household_Median_Income_Formatted,
             },
         }
