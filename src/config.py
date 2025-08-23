@@ -31,7 +31,7 @@ BASE_ID = os.getenv("AIRTABLE_BASE_NAME")
 AIRTABLE_ACCESS_TOKEN = os.getenv("AIRTABLE_ACCESS_TOKEN")
 
 # for streamlit app
-PATH_TO_ZIP_SHAPEFILE = "data/input/zip_shapefile_filtered.shp"
+PATH_TO_ZIP_SHAPEFILE = "data/input/zip_shapefile_filtered/zip_shapefile_filtered.shp"
 
 # for geolocation
 OPEN_MAPS_API_URL = "https://nominatim.openstreetmap.org/search"

@@ -27,6 +27,7 @@ from config import (
 )
 from datetime import datetime
 
+st.set_page_config(page_title="🏠 Housing Affordability Explorer")
 
 #####################
 # HELPERS AND CACHING
@@ -139,7 +140,6 @@ geojson_map = {
 
 # ------- HEADER -------
 
-st.set_page_config(page_title="🏠 Housing Affordability Explorer")
 st.title("🏠 Housing Affordability Explorer")
 st.markdown(
     """
