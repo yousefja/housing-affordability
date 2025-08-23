@@ -4,7 +4,7 @@ File:        app.py
 Description: Creates a streamlit dashboard using the scraped housing data
 Author:      Yuseof
 Created:     2025-07-24
-Modified:    2025-07-29
+Modified:    2025-08-22
 Usage:       --
 """
 
@@ -103,24 +103,6 @@ gdf_zip_shapes = load_zip_shapes()
 #def preprocess_dfs(df_zip_analysis, ):
     
 # merge zip affordability metrics with zip gdf
-
-
-# ----------------------------------------------------------------------------------------------------------
-
-##########
-# TODO: TEMPORARY SOLUTION 
-##########
-
-#get only zips for this batch to provce that I can filter the full zipfile for only buffalo zips and be fine 
-
-#gdf_zip_analysis = gdf_zip_shapes.merge(
-#    df_zip_analysis[["Zipcode"]], how="right", on="Zipcode"
-#)
-
-#gdf_zip_analysis.to_file("../data/input/zip_shapefile_filtered.shp", driver='ESRI Shapefile')
-
-# ---------------------------------------------------------------------------------------------------------------
-
 gdf_zip_analysis = df_zip_analysis.merge(
     gdf_zip_shapes, how="left", on="Zipcode"
 )

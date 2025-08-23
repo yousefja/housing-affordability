@@ -4,7 +4,7 @@ File:        main.py
 Description: Scrape housing listings and calculate affordability metrics.
 Author:      Yuseof
 Created:     2025-07-24
-Modified:    2025-07-24
+Modified:    2025-08-22
 Usage:       python main.py
 """
 
