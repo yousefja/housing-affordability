@@ -27,18 +27,28 @@ from selenium.webdriver.support import expected_conditions as EC
 ###############
 
 
-def human_scroll(driver, step=200, delay=0.5, up_chance=0.15):
+import random
+import time
+
+def human_scroll(driver, step=200, delay=0.5, up_chance=0.15, timeout=30):
     """
     Scrolls down smoothly with jitter, occasionally scrolling up.
     
     step: average px per scroll
     delay: average delay between steps
     up_chance: probability to scroll up instead of down
+    timeout: max time (seconds) to keep scrolling
     """
     total_height = driver.execute_script("return document.body.scrollHeight") or 3000
     current = 0
+    start_time = time.time()
 
     while current < total_height:
+        # stop if we hit timeout
+        if time.time() - start_time > timeout:
+            print("⏱️ Timeout reached, stopping scroll.")
+            break
+
         if random.random() < up_chance:
             # Scroll up a bit
             up_step = random.randint(100, 300)
@@ -52,7 +62,7 @@ def human_scroll(driver, step=200, delay=0.5, up_chance=0.15):
 
         # Randomized delay for more natural behavior
         time.sleep(random.uniform(delay * 0.5, delay * 1.5))
-        
+
 
 def instantiate_driver(headless=True):
     """
@@ -172,6 +182,7 @@ def scrape_listings(driver, housing_listings_url, max_listings, timeout=20):
         master_listing_data.extend(parsed_data)
         
         # gentle scroll to simulate reading
+        print("Performing human-like scroll")
         human_scroll(driver)
 
         # simulate human-like next button click
