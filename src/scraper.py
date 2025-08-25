@@ -115,7 +115,7 @@ def instantiate_driver(headless=True):
     return driver
 
 
-def scrape_listings(driver, housing_listings_url, max_listings, timeout=10):
+def scrape_listings(driver, housing_listings_url, max_listings, timeout=20):
     '''
     Scrape property listings in a human-like way to avoid bot detection
 
@@ -132,6 +132,10 @@ def scrape_listings(driver, housing_listings_url, max_listings, timeout=10):
     
     # open property listings url
     driver.get(housing_listings_url)
+    
+    # check whether the web page was properly loaded
+    print("Current page title:", driver.title)
+    print("Current URL:", driver.current_url)
     
     # human wait before interacting with page
     time.sleep(random.uniform(1.5, 3.0))
