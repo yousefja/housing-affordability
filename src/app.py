@@ -8,10 +8,8 @@ Modified:    2025-08-22
 Usage:       --
 """
 
-import os
 import math
 import folium
-import numpy as np
 import pandas as pd
 import geopandas as gpd
 import streamlit as st
@@ -330,10 +328,12 @@ with st.expander("ℹ️ About this dashboard"):
     )
     
 # Display last refreshed timestamp at top of page
+last_updated = df_house_analysis['Created'].iloc[0][:-5]
+last_updated  = last_updated.replace("T", " ")
 st.markdown(
     f"""
             <div style='text-align: right'>
-                🕒 **Last Refreshed:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+                🕒 **Data Last Updated:** {last_updated}
             </div>
             """,
     unsafe_allow_html=True,
