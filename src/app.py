@@ -24,7 +24,6 @@ from config import (
     AIRTABLE_ACCESS_TOKEN
 
 )
-from datetime import datetime
 
 st.set_page_config(page_title="🏠 Housing Affordability Explorer")
 
