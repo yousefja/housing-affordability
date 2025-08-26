@@ -231,7 +231,7 @@ folium.Choropleth(
     fill_color="YlOrRd",
     fill_opacity=0.7,
     line_opacity=0.2,
-    legend_name="Price to Income Ratio (Affordability Measure)",
+    legend_name="Price:Income (Lower = More Affordable)",
     threshold_scale=custom_bins,
 ).add_to(map)
 
