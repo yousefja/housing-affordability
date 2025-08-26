@@ -209,7 +209,7 @@ try:
         df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == False]
 
 except:
-    print("No Houses Match This Criteria...")
+    st.error("No Houses Match This Criteria...")
     
 # --------- MAP ---------
 
