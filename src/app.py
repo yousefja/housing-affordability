@@ -307,33 +307,7 @@ with tab1:
 
     except:
         st.error("No Houses Match This Criteria...")
-
-    with st.container():
-        # Create two vertical columns: left = map, right = summary cards
-        col_map, col_summary = st.columns([3, 1])  # 3:1 width ratio
-
-        # Map goes on left
-        with col_map:
-            st_folium(map, width=800, height=600)
     
-        # Summary cards on right
-        with col_summary:
-            # Most Affordable Areas
-            st.markdown("<h5>⬆️ Most Affordable Areas</h5>", unsafe_allow_html=True)
-            df_most_aff = df_zip_analysis.sort_values('PIR').head(3)[['Zipcode', 'PIR']]
-            for _, row in df_most_aff.iterrows():
-                st.markdown(f"**Zip {row.Zipcode}** — PIR = {row.PIR:,.1f}")
-    
-            st.markdown("<br>", unsafe_allow_html=True)
-    
-            # Least Affordable Areas
-            st.markdown("<h5>⬇️ Least Affordable Areas</h5>", unsafe_allow_html=True)
-            df_least_aff = df_zip_analysis.sort_values('PIR').tail(3)[['Zipcode', 'PIR']]
-            for _, row in df_least_aff.iterrows():
-                st.markdown(f"**Zip {row.Zipcode}** — PIR = {row.PIR:,.1f}")
-    
-        
-    ''' 
     # map and summary cards placed in same container to avoid massive spacing between them
     map_container = st.container()
     
@@ -400,7 +374,7 @@ with tab1:
         
         # padding under summary cards
         st.markdown('</div>', unsafe_allow_html=True)
-    '''
+    
 # st.markdown("<br>", unsafe_allow_html=True)  # Add some vertical space
 # st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
 
