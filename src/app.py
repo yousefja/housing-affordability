@@ -314,54 +314,7 @@ with tab1:
     with map_container:
     
         st_folium(map, width=800, height=600)
-
-         # prepare HTML for the two cards
-        # Most Affordable Areas
-        df_most_aff = df_zip_analysis.sort_values('PIR').head(3)[['Zipcode', 'PIR']]
-        most_aff_html = """
-        <div style="
-            padding:15px;
-            background-color:#007506;
-            border-radius:10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            color: white;
-        ">
-            <h4 style="margin-top:0;">⬆️ Most Affordable Areas</h4>
-            <ul style="padding-left:20px; margin:0;">
-        """
-        for _, row in df_most_aff.iterrows():
-            most_aff_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.0f}</li>"
-        most_aff_html += "</ul></div>"
-    
-        # Least Affordable Areas
-        df_least_aff = df_zip_analysis.sort_values('PIR').tail(3)[['Zipcode', 'PIR']]
-        least_aff_html = """
-        <div style="
-            padding:15px;
-            background-color:#B30000;
-            border-radius:10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            color: white;
-        ">
-            <h4 style="margin-top:0;">⬇️ Least Affordable Areas</h4>
-            <ul style="padding-left:20px; margin:0;">
-        """
-        for _, row in df_least_aff.iterrows():
-            least_aff_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.0f}</li>"
-        least_aff_html += "</ul></div>"
-    
-        # wrap both cards in a flex container
-        st.markdown(
-            f"""
-            <div style="display:flex; gap:20px; margin-top:10px;">
-                <div style="flex:1;">{most_aff_html}</div>
-                <div style="flex:1;">{least_aff_html}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        '''
+        
         # summary cols
         most_aff, least_aff = st.columns(2)
         
@@ -421,7 +374,7 @@ with tab1:
         
         # padding under summary cards
         st.markdown('</div>', unsafe_allow_html=True)
-        '''
+        
 
 
 # st.markdown("<br>", unsafe_allow_html=True)  # Add some vertical space
