@@ -264,19 +264,22 @@ for _, row in df_houses_filtered.iterrows():
 
 # show map in streamlit
 with tab1:
+
+    try:
+        # kpi columns
+        col1, col2, col3, col4 = st.columns([1.5,2,2,1])
+        col1.metric("Total Homes", len(df_houses_filtered))
+        col2.metric("Median Home Price", f"${int(df_houses_filtered['Price'].median()):,}")
+        col3.metric(
+            "Median Affordability Gap",
+            f"${int(df_houses_filtered['Affordability_Gap'].median()):,}",
+        )
+        col4.metric("% Affordable",
+                    f"{math.trunc((len(df_houses_filtered[df_houses_filtered.Affordability_Gap == 0]) / len(df_houses_filtered)) * 100)}%")
+
+    except:
+        st.error("No Houses Match This Criteria...")
         
-    # kpi columns
-    col1, col2, col3, col4 = st.columns([1.5,2,2,1])
-    col1.metric("Total Homes", len(df_houses_filtered))
-    col2.metric("Median Home Price", f"${int(df_houses_filtered['Price'].median()):,}")
-    col3.metric(
-        "Median Affordability Gap",
-        f"${int(df_houses_filtered['Affordability_Gap'].median()):,}",
-    )
-    col4.metric("% Affordable",
-                f"{math.trunc((len(df_houses_filtered[df_houses_filtered.Affordability_Gap == 0]) / len(df_houses_filtered)) * 100)}%")
-    
-    
     # map and summary cards placed in same container to avoid massive spacing between them
     map_container = st.container()
     
