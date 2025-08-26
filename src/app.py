@@ -228,6 +228,7 @@ colormap = cm.LinearColormap(
     caption="Price:Income Ratio (Lower = More Affordable)"
 )
 
+'''
 # choropleth layer
 folium.Choropleth(
     geo_data=geojson_map,
@@ -252,6 +253,24 @@ folium.GeoJson(
     ),
     style_function=lambda x: {"fillOpacity": 0, "color": "transparent"},
 ).add_to(map)
+'''
+# add GeoJson layer with per-feature fill
+folium.GeoJson(
+    geojson_map,
+    style_function=lambda feature: {
+        "fillColor": colormap(feature["properties"]["PIR"]),
+        "color": "black",
+        "weight": 0.5,
+        "fillOpacity": 0.7,
+    },
+    tooltip=folium.GeoJsonTooltip(
+        fields=["Zipcode", "PIR", "Household_Median_Income_Formatted"],
+        aliases=["Zipcode", "PIR", "Median Income"]
+    )
+).add_to(map)
+
+# add colormap legend
+colormap.add_to(map)
 
 # Add house pins
 for _, row in df_houses_filtered.iterrows():
