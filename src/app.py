@@ -224,7 +224,7 @@ custom_bins = [x for x in range(math.ceil(df_zip_analysis.PIR.max()) + 2)]
 colormap = cm.LinearColormap(
     colors=["green", "yellow", "red"],
     vmin=df_zip_analysis["PIR"].min(),
-    vmax=df_zip_analysis["PIR"].max(),
+    vmax=7, # NOTE!! This value is somewhat arbitrary, based on what is an "affordable" PIR from research
     caption="Price:Income Ratio (Lower = More Affordable)"
 )
 
