@@ -166,15 +166,17 @@ tab1, tab2, tab3 = st.tabs(["🗺 Map View", "📊 Charts", "📋 Data Table"])
 
 st.sidebar.header("Filters")
 
-# zip filter
-zip_options = sorted(df_zip_analysis['Zipcode'].unique().tolist())
-selected_zip = st.sidebar.selectbox("Zipcode", ['All'] + zip_options)
-
 st.sidebar.write("")
 
 # house type filters
 show_affordable = st.sidebar.checkbox("Show Affordable Homes", value=True)
 show_unaffordable = st.sidebar.checkbox("Show Unaffordable Homes", value=True)
+
+st.sidebar.write("")
+
+# zip filter
+zip_options = sorted(df_zip_analysis['Zipcode'].unique().tolist())
+selected_zip = st.sidebar.selectbox("Zipcode", ['All'] + zip_options)
 
 st.sidebar.write("")
 
