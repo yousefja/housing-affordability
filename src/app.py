@@ -157,10 +157,6 @@ st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
 
 tab1, tab2, tab3 = st.tabs(["🗺 Map View", "📊 Charts", "📋 Data Table"])
 
-# st.sidebar.header("Filter Options")
-# selected_zip = st.sidebar.selectbox("Choose a ZIP Code", options=df_house_analysis["Zipcode"].unique())
-# min_price = st.sidebar.slider("Minimum Price", 0, int(df_house_analysis["Price"].max()), 100000)
-
 # ------- FILTERS -------
 
 st.sidebar.header("Filters")
@@ -180,7 +176,9 @@ min_price, max_price = int(df_house_analysis.Price.min()), int(df_house_analysis
 price_range = st.sidebar.slider("Price Range",
                                 min_value=min_price, 
                                 max_value=max_price,
-                                value=(min_price, max_price), step=10000
+                                value=(min_price, max_price), 
+                                step=10000,
+                                format="$%d"
                                 )
 # space
 st.sidebar.write("")
