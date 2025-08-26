@@ -193,21 +193,25 @@ selected_zips = st.sidebar.multiselect("Select Zipcode(s)", zip_options)
 
 df_houses_filtered = df_house_analysis.copy()
 
-# price filter
-df_houses_filtered = df_houses_filtered[
-    (df_houses_filtered['Price'] >= price_range[0]) &
-    (df_houses_filtered['Price'] <= price_range[1])
-]
-
-# zip filter
-if selected_zips:
-    df_houses_filtered = df_houses_filtered[df_houses_filtered.Zipcode.isin([int(x) for x in selected_zips])]
-
-if show_unaffordable == False:
-    df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == True]
+try: 
+    # price filter
+    df_houses_filtered = df_houses_filtered[
+        (df_houses_filtered['Price'] >= price_range[0]) &
+        (df_houses_filtered['Price'] <= price_range[1])
+    ]
     
-if show_affordable == False:
-    df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == False]
+    # zip filter
+    if selected_zips:
+        df_houses_filtered = df_houses_filtered[df_houses_filtered.Zipcode.isin([int(x) for x in selected_zips])]
+    
+    if show_unaffordable == False:
+        df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == True]
+        
+    if show_affordable == False:
+        df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == False]
+
+except:
+    print("No Houses Match This Criteria...")
     
 # --------- MAP ---------
 
