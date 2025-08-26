@@ -166,18 +166,14 @@ tab1, tab2, tab3 = st.tabs(["🗺 Map View", "📊 Charts", "📋 Data Table"])
 
 st.sidebar.header("Filters")
 
+# space
 st.sidebar.write("")
 
 # house type filters
 show_affordable = st.sidebar.checkbox("Show Affordable Homes", value=True)
 show_unaffordable = st.sidebar.checkbox("Show Unaffordable Homes", value=True)
 
-st.sidebar.write("")
-
-# zip filter
-zip_options = sorted(df_zip_analysis['Zipcode'].unique().tolist())
-selected_zip = st.sidebar.selectbox("Zipcode", ['All'] + zip_options)
-
+# space
 st.sidebar.write("")
 
 # house price filter
@@ -187,9 +183,33 @@ price_range = st.sidebar.slider("Price Range",
                                 max_value=max_price,
                                 value=(min_price, max_price), step=10000
                                 )
+# space
+st.sidebar.write("")
 
-# TODO: apply filters
+# zip filter
+zip_options = sorted(df_zip_analysis['Zipcode'].unique().tolist())
+selected_zips = st.sidebar.multiselect("Select Zipcode(s)", zip_options)
 
+# ------- APPLY FILTERS -------
+
+df_houses_filtered = df_house_analysis.copy()
+
+# price filter
+df_houses_filtered = df_houses_filtered[
+    (df_houses_filtered['Price'] >= price_range[0]) &
+    (df_houses_filtered['Price'] <= price_range[1])
+]
+
+# zip filter
+if selected_zips:
+    df_houses_filtered = df_houses_filtered[df_houses_filtered.Zipcode.isin(selected_zips)]
+
+if show_unnafordable == False:
+    df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == True]
+    
+if show_affordable == False:
+    df_houses_filtered = df_houses_filtered[df_houses_filtered.IsAffordable == False]
+    
 # --------- MAP ---------
 
 # create folium map
@@ -224,22 +244,22 @@ folium.GeoJson(
 ).add_to(map)
 
 # Add house pins
-for _, row in df_house_analysis.iterrows():
+for _, row in df_houses_filtered.iterrows():
 
    # only show if filter toggle is set accordingly
-   if (row.Is_Affordable and show_affordable) or (not row.Is_Affordable and show_unaffordable):
+   #if (row.Is_Affordable and show_affordable) or (not row.Is_Affordable and show_unaffordable):
 
-        folium.Marker(
-            location=[row["Lat"], row["Lng"]],
-            tooltip=(
-                f"<b>{row['Address']}</b><br>"
-                f"<div style='line-height:2'></div>"
-                f"<b><i>Price:</i></b> ${int(row['Price']):,}<br>"
-                f"<b><i>Affordable Price:</i></b> ${int(row['Affordable_Price']):,}<br>"
-                f"<b><i>Affordability Gap:</i></b> ${int(row['Affordability_Gap']):,}"
-            ),
-            icon=folium.Icon(color=row['Affordable_Color'], icon="home", prefix="fa"),
-        ).add_to(map)
+    folium.Marker(
+        location=[row["Lat"], row["Lng"]],
+        tooltip=(
+            f"<b>{row['Address']}</b><br>"
+            f"<div style='line-height:2'></div>"
+            f"<b><i>Price:</i></b> ${int(row['Price']):,}<br>"
+            f"<b><i>Affordable Price:</i></b> ${int(row['Affordable_Price']):,}<br>"
+            f"<b><i>Affordability Gap:</i></b> ${int(row['Affordability_Gap']):,}"
+        ),
+        icon=folium.Icon(color=row['Affordable_Color'], icon="home", prefix="fa"),
+    ).add_to(map)
 
 # show map in streamlit
 with tab1:
