@@ -10,6 +10,7 @@ Usage:       --
 
 import math
 import folium
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 import streamlit as st
@@ -66,6 +67,11 @@ def load_house_listings():
     table = api.table(BASE_ID, HOUSE_TABLE_NAME)
     rows = table.all()
     df = pd.json_normalize(r["fields"] for r in rows)
+    
+    # fields for mapping
+    df['Affordable_Color'] = np.where(df['Affordability_Gap'] < 0, "red", "green")
+    df['Is_Affordable'] = np.where(df['Affordability_Gap'] < 0, False, True)
+
     return df
     
 
@@ -164,6 +170,10 @@ st.sidebar.header("Filters")
 zip_options = sorted(df_zip_analysis['Zipcode'].unique().tolist())
 selected_zip = st.sidebar.selectbox("Zipcode", ['All'] + zip_options)
 
+# house type filters
+show_affordable = st.sidebar.checkbox("Show Affordable Homes", value=True)
+show_unaffordable = st.sidebar.checkbox("Show Unaffordable Homes", value=True)
+
 # house price filter
 min_price, max_price = int(df_house_analysis.Price.min()), int(df_house_analysis.Price.max())
 price_range = st.sidebar.slider("Price Range",
@@ -210,20 +220,20 @@ folium.GeoJson(
 # Add house pins
 for _, row in df_house_analysis.iterrows():
 
-    # color house pins red if house is unaffordable
-    color = "red" if row["Affordability_Gap"] < 0 else "green"
+   # only show if filter toggle is set accordingly
+   if (row.Is_Affordable and show_affordable) or (not row.Is_Affordable and show_unaffordable):
 
-    folium.Marker(
-        location=[row["Lat"], row["Lng"]],
-        tooltip=(
-            f"<b>{row['Address']}</b><br>"
-            f"<div style='line-height:2'></div>"
-            f"<b><i>Price:</i></b> ${int(row['Price']):,}<br>"
-            f"<b><i>Affordable Price:</i></b> ${int(row['Affordable_Price']):,}<br>"
-            f"<b><i>Affordability Gap:</i></b> ${int(row['Affordability_Gap']):,}"
-        ),
-        icon=folium.Icon(color=color, icon="home", prefix="fa"),
-    ).add_to(map)
+        folium.Marker(
+            location=[row["Lat"], row["Lng"]],
+            tooltip=(
+                f"<b>{row['Address']}</b><br>"
+                f"<div style='line-height:2'></div>"
+                f"<b><i>Price:</i></b> ${int(row['Price']):,}<br>"
+                f"<b><i>Affordable Price:</i></b> ${int(row['Affordable_Price']):,}<br>"
+                f"<b><i>Affordability Gap:</i></b> ${int(row['Affordability_Gap']):,}"
+            ),
+            icon=folium.Icon(color=row['Affordable_Color'], icon="home", prefix="fa"),
+        ).add_to(map)
 
 # show map in streamlit
 with tab1:
