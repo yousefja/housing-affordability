@@ -208,7 +208,7 @@ if show_unaffordable == False:
     df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == True]
     
 if show_affordable == False:
-    df_houses_filtered = df_houses_filtered[df_houses_filtered.IsAffordable == False]
+    df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == False]
     
 # --------- MAP ---------
 
