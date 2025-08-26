@@ -15,6 +15,7 @@ import pandas as pd
 import geopandas as gpd
 import streamlit as st
 from pyairtable import Api
+import branca.colormap as cm
 from streamlit_folium import st_folium
 from config import (
     PATH_TO_ZIP_SHAPEFILE,
@@ -219,6 +220,14 @@ map = folium.Map(location=[42.9159281, -78.7487142], zoom_start=11)
 # create custom bins for the gradient colors for the choropleth
 custom_bins = [x for x in range(math.ceil(df_zip_analysis.PIR.max()) + 2)]
 
+# Create a custom colormap (green → yellow → red)
+colormap = cm.LinearColormap(
+    colors=["green", "yellow", "red"],
+    vmin=df_zip_analysis["PIR"].min(),
+    vmax=df_zip_analysis["PIR"].max(),
+    caption="Price:Income Ratio (Lower = More Affordable)"
+)
+
 # choropleth layer
 folium.Choropleth(
     geo_data=geojson_map,
@@ -226,7 +235,7 @@ folium.Choropleth(
     data=df_zip_analysis,
     columns=["Zipcode", "PIR"],
     key_on="feature.properties.Zipcode",
-    fill_color="YlOrRd",
+    fill_color=colormap,
     fill_opacity=0.7,
     line_opacity=0.2,
     legend_name="Price:Income Ratio (Lower = More Affordable)",
