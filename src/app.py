@@ -228,32 +228,6 @@ colormap = cm.LinearColormap(
     caption="Price:Income Ratio (Lower = More Affordable)"
 )
 
-'''
-# choropleth layer
-folium.Choropleth(
-    geo_data=geojson_map,
-    name="Affordability by ZIP",
-    data=df_zip_analysis,
-    columns=["Zipcode", "PIR"],
-    key_on="feature.properties.Zipcode",
-    fill_color=colormap,
-    fill_opacity=0.7,
-    line_opacity=0.2,
-    legend_name="Price:Income Ratio (Lower = More Affordable)",
-    threshold_scale=custom_bins,
-).add_to(map)
-
-# Add tooltips to ZIPs
-folium.GeoJson(
-    geojson_map,
-    name="Zipcode Tooltips",
-    tooltip=folium.GeoJsonTooltip(
-        fields=["Zipcode", "PIR", "Household_Median_Income_Formatted"],
-        aliases=["Zipcode", "PIR", "Median Income"],
-    ),
-    style_function=lambda x: {"fillOpacity": 0, "color": "transparent"},
-).add_to(map)
-'''
 # add GeoJson layer with per-feature fill
 folium.GeoJson(
     geojson_map,
