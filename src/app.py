@@ -266,14 +266,14 @@ with tab1:
         
     # kpi columns
     col1, col2, col3, col4 = st.columns([1.5,2,2,1])
-    col1.metric("Total Homes", len(df_house_analysis))
-    col2.metric("Median Home Price", f"${int(df_house_analysis['Price'].median()):,}")
+    col1.metric("Total Homes", len(df_houses_filtered))
+    col2.metric("Median Home Price", f"${int(df_houses_filtered['Price'].median()):,}")
     col3.metric(
         "Median Affordability Gap",
-        f"${int(df_house_analysis['Affordability_Gap'].median()):,}",
+        f"${int(df_houses_filtered['Affordability_Gap'].median()):,}",
     )
     col4.metric("% Affordable",
-                f"{math.trunc((len(df_house_analysis[df_house_analysis.Affordability_Gap == 0]) / len(df_house_analysis)) * 100)}%")
+                f"{math.trunc((len(df_houses_filtered[df_houses_filtered.Affordability_Gap == 0]) / len(df_houses_filtered)) * 100)}%")
     
     
     # map and summary cards placed in same container to avoid massive spacing between them
