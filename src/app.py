@@ -201,7 +201,7 @@ df_houses_filtered = df_houses_filtered[
 
 # zip filter
 if selected_zips:
-    df_houses_filtered = df_houses_filtered[df_houses_filtered.Zipcode.isin(int(selected_zips))]
+    df_houses_filtered = df_houses_filtered[df_houses_filtered.Zipcode.isin([int(x) for x in selected_zips])]
 
 if show_unaffordable == False:
     df_houses_filtered = df_houses_filtered[df_houses_filtered.Is_Affordable == True]
