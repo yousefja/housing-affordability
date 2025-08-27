@@ -282,13 +282,20 @@ with tab1:
     except:
         st.error("No Houses Match This Criteria...")
     
-    map_container, cards_container = st.container(), st.container()
+    map_container = st.container()
     
     with map_container:
 
         st_folium(map, width=800, height=600)
 
-    with cards_container:
+         # --- ONE-TIME RERUN TO STAGE THE MAP ---
+        if "map_ready" not in st.session_state:
+            st.session_state["map_ready"] = True
+            # Streamlit >=1.30 has st.rerun(); fall back to experimental on older versions
+            try:
+                st.rerun()
+            except Exception:
+                st.experimental_rerun()
         
         # summary cols
         most_aff, least_aff = st.columns(2)
@@ -350,8 +357,6 @@ with tab1:
         # padding under summary cards
         st.markdown('</div>', unsafe_allow_html=True)
         
-
-
 # st.markdown("<br>", unsafe_allow_html=True)  # Add some vertical space
 # st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
 
@@ -364,7 +369,7 @@ with st.expander("ℹ️ About this dashboard"):
 
     - **Affordable Price** = Median Income x 3
     - **Affordability Gap** = House Price - Affordable Price
-    - **PIR** (Price to Income Ratio) = Median House Price / Median Income
+    - **Price to Income Ratio (PIR)** = Median House Price / Median Income
     - **Red Pins** indicate unaffordable homes.
     - **Green Pins** indicate affordable homes.
 
@@ -383,19 +388,3 @@ st.markdown(
             """,
     unsafe_allow_html=True,
 )
-
-# st.markdown("""<hr style="margin-top: 50px;">""", unsafe_allow_html=True)
-# st.markdown("Built by Yousef J. | 📫 [Contact](mailto:your@email.com)", unsafe_allow_html=True)
-
-
-# select zipcode
-# zipcodes = sorted(df_zip_analysis.Zipcode.unique())
-# selected_zip = st.selectbox("Select Zipcode", zipcodes)
-
-# filter for selected zip
-# zip_data = df_zip_analysis[df_zip_analysis.Zipcode == selected_zip]
-
-# st.subheader(f"Affordability Metrics for Zipcode {selected_zip}")
-
-# st.write(zip_data)
-#'''
