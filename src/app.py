@@ -155,7 +155,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.markdown("<br>", unsafe_allow_html=True)  # Add some vertical space
-#st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
 
 tab1, tab2, tab3 = st.tabs(["🗺 Map View", "📊 Charts", "📋 Data Table"])
 
