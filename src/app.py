@@ -286,8 +286,11 @@ with tab1:
     map_container = st.container()
     
     with map_container:
-    
+
+        # fixed-height container for map
+        st.markdown("<div style='height: 620px'>", unsafe_allow_html=True)
         st_folium(map, width=800, height=600)
+        st.markdown("</div>", unsafe_allow_html=True)
         
         # summary cols
         most_aff, least_aff = st.columns(2)
