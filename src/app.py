@@ -289,7 +289,7 @@ with tab1:
     # render folium map HTML and embed it into a fixed-height iframe so Streamlit reserves that space up-front.
     # this both fixes issue of summary cards being sent to bottom of page, and screen flickering.
     map_html = map.get_root().render() 
-    components.html(map_html, height=700, scrolling=False)    
+    components.html(map_html, height=650, scrolling=False)    
 
     # space between map and summary cards
     st.empty() 
