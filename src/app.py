@@ -282,17 +282,17 @@ with tab1:
 
     except:
         st.error("No Houses Match This Criteria...")
-    
 
-    # ---------- MAP (embed fixed-height iframe of full folium HTML) ----------
-    # Render folium map HTML and embed it into a fixed-height iframe so Streamlit reserves that space up-front.
-    map_html = map.get_root().render()  # full HTML for the folium map (includes leaflet JS/CSS)
-    # Adjust 'height' if you want more/less vertical space reserved for the map
-    components.html(map_html, height=650, scrolling=False)    
-    
-    #with map_container:
+    # space between header and map
+    st.empty() 
 
-    #st_folium(map, width=800, height=600)
+    # render folium map HTML and embed it into a fixed-height iframe so Streamlit reserves that space up-front.
+    # this both fixes issue of summary cards being sent to bottom of page, and screen flickering.
+    map_html = map.get_root().render() 
+    components.html(map_html, height=700, scrolling=False)    
+
+    # space between map and summary cards
+    st.empty() 
     
     # summary cols
     most_aff, least_aff = st.columns(2)
