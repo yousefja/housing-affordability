@@ -282,15 +282,13 @@ with tab1:
     except:
         st.error("No Houses Match This Criteria...")
     
-    # map and summary cards placed in same container to avoid massive spacing between them
-    map_container = st.container()
+    map_container, cards_container = st.container(), st.container()
     
     with map_container:
 
-        # fixed-height container for map
-        st.markdown("<div style='height: 620px'>", unsafe_allow_html=True)
         st_folium(map, width=800, height=600)
-        st.markdown("</div>", unsafe_allow_html=True)
+
+    with cards_container:
         
         # summary cols
         most_aff, least_aff = st.columns(2)
