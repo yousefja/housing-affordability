@@ -17,6 +17,7 @@ import streamlit as st
 from pyairtable import Api
 import branca.colormap as cm
 from streamlit_folium import st_folium
+import streamlit.components.v1 as components
 from config import (
     PATH_TO_ZIP_SHAPEFILE,
     HOUSE_TABLE_NAME,
@@ -282,80 +283,76 @@ with tab1:
     except:
         st.error("No Houses Match This Criteria...")
     
-    map_container = st.container()
+
+    # ---------- MAP (embed fixed-height iframe of full folium HTML) ----------
+    # Render folium map HTML and embed it into a fixed-height iframe so Streamlit reserves that space up-front.
+    map_html = map.get_root().render()  # full HTML for the folium map (includes leaflet JS/CSS)
+    # Adjust 'height' if you want more/less vertical space reserved for the map
+    components.html(map_html, height=650, scrolling=False)    
     
-    with map_container:
+    #with map_container:
 
-        st_folium(map, width=800, height=600)
-
-         # --- ONE-TIME RERUN TO STAGE THE MAP ---
-        if "map_ready" not in st.session_state:
-            st.session_state["map_ready"] = True
-            # Streamlit >=1.30 has st.rerun(); fall back to experimental on older versions
-            try:
-                st.rerun()
-            except Exception:
-                st.experimental_rerun()
+    #st_folium(map, width=800, height=600)
+    
+    # summary cols
+    most_aff, least_aff = st.columns(2)
+    
+    with most_aff:
         
-        # summary cols
-        most_aff, least_aff = st.columns(2)
+        # least affordable neighborhoods (Recc: These neighborhoods Need pricing support)
+        df_most_aff = df_zip_analysis.sort_values('PIR').head(3)[['Zipcode', 'PIR']]
         
-        with most_aff:
-            
-            # least affordable neighborhoods (Recc: These neighborhoods Need pricing support)
-            df_most_aff = df_zip_analysis.sort_values('PIR').head(3)[['Zipcode', 'PIR']]
-            
-            insights_html = """
-            <div style="
-                padding:15px;
-                background-color:#007506;
-                border-radius:10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                color: white;
-            ">
-                <h4 style="margin-top:0;">⬆️ Most Affordable Areas</h4>
-                <ul style="padding-left:20px; margin:0;">
-            """
+        insights_html = """
+        <div style="
+            padding:15px;
+            background-color:#007506;
+            border-radius:10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: white;
+        ">
+            <h4 style="margin-top:0;">⬆️ Most Affordable Areas</h4>
+            <ul style="padding-left:20px; margin:0;">
+        """
+    
+        for _, row in df_most_aff.iterrows():
+            insights_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.0f}</li>"
         
-            for _, row in df_most_aff.iterrows():
-                insights_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.0f}</li>"
-            
-            insights_html += """
-                </ul>
-            </div>
-            """
-            
-            st.markdown(insights_html, unsafe_allow_html=True)
-            
-        with least_aff:
-            
-            # least affordable neighborhoods (Recc: These neighborhoods Need pricing support)
-            df_least_aff = df_zip_analysis.sort_values('PIR').tail(3)[['Zipcode', 'PIR']]
-            
-            insights_html = """
-            <div style="
-                padding:15px;
-                background-color:#B30000;
-                border-radius:10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                color: white;
-            ">
-                <h4 style="margin-top:0;">⬇️ Least Affordable Areas</h4>
-                <ul style="padding-left:20px; margin:0;">
-            """
+        insights_html += """
+            </ul>
+        </div>
+        """
         
-            for _, row in df_least_aff.iterrows():
-                insights_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.0f}</li>"
+        st.markdown(insights_html, unsafe_allow_html=True)
         
-            insights_html += """
-                </ul>
-            </div>
-            """
-            
-            st.markdown(insights_html, unsafe_allow_html=True)
+    with least_aff:
         
-        # padding under summary cards
-        st.markdown('</div>', unsafe_allow_html=True)
+        # least affordable neighborhoods (Recc: These neighborhoods Need pricing support)
+        df_least_aff = df_zip_analysis.sort_values('PIR').tail(3)[['Zipcode', 'PIR']]
+        
+        insights_html = """
+        <div style="
+            padding:15px;
+            background-color:#B30000;
+            border-radius:10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: white;
+        ">
+            <h4 style="margin-top:0;">⬇️ Least Affordable Areas</h4>
+            <ul style="padding-left:20px; margin:0;">
+        """
+    
+        for _, row in df_least_aff.iterrows():
+            insights_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.0f}</li>"
+    
+        insights_html += """
+            </ul>
+        </div>
+        """
+        
+        st.markdown(insights_html, unsafe_allow_html=True)
+    
+    # padding under summary cards
+    st.markdown('</div>', unsafe_allow_html=True)
         
 # st.markdown("<br>", unsafe_allow_html=True)  # Add some vertical space
 # st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
