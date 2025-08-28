@@ -16,6 +16,7 @@ import geopandas as gpd
 import streamlit as st
 from pyairtable import Api
 import branca.colormap as cm
+from datetime import datetime
 from streamlit_folium import st_folium
 import streamlit.components.v1 as components
 from config import (
@@ -384,6 +385,7 @@ with st.expander("ℹ️ About this dashboard"):
 # Display last refreshed timestamp at top of page
 last_updated = df_house_analysis['Created'].iloc[0][:-5]
 last_updated  = last_updated.replace("T", " ")
+last_updated = datetime.strptime(last_updated, "%Y-%m-%d %H:%M:%S").strftime("%B %d %Y %I:%M %p")
 st.markdown(
     f"""
             <div style='text-align: right'>
