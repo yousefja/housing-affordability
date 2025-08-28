@@ -385,7 +385,7 @@ with st.expander("ℹ️ About this dashboard"):
 # Display last refreshed timestamp at top of page
 last_updated = df_house_analysis['Created'].iloc[0][:-5]
 last_updated  = last_updated.replace("T", " ")
-last_updated = datetime.strptime(last_updated, "%Y-%m-%d %H:%M:%S").strftime("%b %d %Y - %I:%M %p")
+last_updated = datetime.strptime(last_updated, "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%y - %I:%M %p")
 st.markdown(
     f"""
             <div style='text-align: right'>
