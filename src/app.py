@@ -34,7 +34,7 @@ st.set_page_config(page_title="🏠 Housing Affordability Explorer")
 # HELPERS AND CACHING
 #####################
 
-# NOTE: caching prevents flickering in streamlit UI since results are stored rather than 
+# NOTE: caching prevents lag and flickering in streamlit UI since results are stored rather than 
 # code rerunning / resources realoading every time
 
 
@@ -104,10 +104,6 @@ gdf_zip_shapes = load_zip_shapes()
 ###############
 # PREPROCESSING
 ###############
-
-# TODO: figure out how to cache this so UI runs smoother
-#@st.cache_date
-#def preprocess_dfs(df_zip_analysis, ):
     
 # merge zip affordability metrics with zip gdf
 gdf_zip_analysis = df_zip_analysis.merge(
@@ -226,9 +222,6 @@ except:
 # create folium map
 map = folium.Map(location=[42.9159281, -78.7487142], zoom_start=11)
 
-# create custom bins for the gradient colors for the choropleth
-custom_bins = [x for x in range(math.ceil(df_zip_analysis.PIR.max()) + 2)]
-
 # Create a custom colormap (green → yellow → red)
 colormap = cm.LinearColormap(
     colors=["green", "yellow", "red"],
@@ -257,10 +250,6 @@ colormap.add_to(map)
 
 # Add house pins
 for _, row in df_houses_filtered.iterrows():
-
-   # only show if filter toggle is set accordingly
-   #if (row.Is_Affordable and show_affordable) or (not row.Is_Affordable and show_unaffordable):
-
     folium.Marker(
         location=[row["Lat"], row["Lng"]],
         tooltip=(
@@ -386,7 +375,7 @@ with tab1:
     st.markdown(
         f"""
                 <div style='text-align: right'>
-                    🕒 <b>Data Last Updated:<b> {last_updated}
+                    🕒 <b>Data Last Updated:</b> {last_updated}
                 </div>
                 """,
         unsafe_allow_html=True,
