@@ -165,7 +165,7 @@ tab1, tab2, tab3 = st.tabs(["🗺 Map View", "📊 Charts", "📋 Data Table"])
 st.sidebar.write("")
 st.sidebar.write("")
 
-st.sidebar.header("Filters")
+st.sidebar.markdown("<h1 style='font-size:32px;'>Filters</h1>", unsafe_allow_html=True)
 
 # vertical spacing
 st.sidebar.write("")
