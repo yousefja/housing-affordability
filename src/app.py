@@ -234,7 +234,7 @@ colormap = cm.LinearColormap(
     colors=["green", "yellow", "red"],
     vmin=df_zip_analysis["PIR"].min(),
     vmax=6, # NOTE!! This value is somewhat arbitrary, based on what is an "affordable" PIR from research
-    caption="Price to Income Ratio"
+    caption="Price to Income Ratio (Affordability Measure)"
 )
 
 # add GeoJson layer with per-feature fill
