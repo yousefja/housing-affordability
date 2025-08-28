@@ -165,12 +165,14 @@ st.sidebar.header("Filters")
 
 # space
 st.sidebar.write("")
+st.sidebar.write("")
 
 # house type filters
 show_affordable = st.sidebar.checkbox("Show Affordable Homes", value=True)
 show_unaffordable = st.sidebar.checkbox("Show Unaffordable Homes", value=True)
 
 # space
+st.sidebar.write("")
 st.sidebar.write("")
 
 # house price filter
@@ -183,6 +185,7 @@ price_range = st.sidebar.slider("Price Range",
                                 format="$%d"
                                 )
 # space
+st.sidebar.write("")
 st.sidebar.write("")
 
 # zip filter
@@ -225,8 +228,8 @@ custom_bins = [x for x in range(math.ceil(df_zip_analysis.PIR.max()) + 2)]
 colormap = cm.LinearColormap(
     colors=["green", "yellow", "red"],
     vmin=df_zip_analysis["PIR"].min(),
-    vmax=7, # NOTE!! This value is somewhat arbitrary, based on what is an "affordable" PIR from research
-    caption="Price:Income Ratio (Lower = More Affordable)"
+    vmax=6, # NOTE!! This value is somewhat arbitrary, based on what is an "affordable" PIR from research
+    caption="Price to Income Ratio"
 )
 
 # add GeoJson layer with per-feature fill
@@ -240,7 +243,7 @@ folium.GeoJson(
     },
     tooltip=folium.GeoJsonTooltip(
         fields=["Zipcode", "PIR", "Household_Median_Income_Formatted"],
-        aliases=["Zipcode", "PIR", "Median Income"]
+        aliases=["Zipcode", "Price to Income Ratio", "Median Income"]
     )
 ).add_to(map)
 
