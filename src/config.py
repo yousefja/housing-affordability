@@ -13,7 +13,7 @@ import os
 CHROME_STABLE_VERSION = "116.0.5845.140"
 HOUSING_URL = "https://www.redfin.com/city/2832/NY/Buffalo"
 # PATH_TO_LISTINGS_OUTPUT = "../data/output/scraped_listings.csv"
-MAX_LISTINGS = 300
+MAX_LISTINGS = 400
 
 # for affordability analaysis
 PATH_TO_INCOME_DATA = (
