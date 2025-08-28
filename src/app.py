@@ -54,6 +54,11 @@ def load_zip_analysis():
     df["PIR"] = df["PIR"].apply(lambda x: round(x, 1))
     
     # include formatted median income field for map viz
+    df["Median_Price_Formatted"] = df[
+        "Median_Price"
+    ].apply(lambda x: "$" + format(x, ","))
+
+    # include formatted median home proce field for map viz
     df["Household_Median_Income_Formatted"] = df[
         "Household_Median_Income"
     ].apply(lambda x: "$" + format(x, ","))
@@ -112,7 +117,7 @@ gdf_zip_analysis = df_zip_analysis.merge(
 
 # select only relevant columns
 gdf_zip_map = gdf_zip_analysis[
-    ["Zipcode", "PIR", "geometry", "Household_Median_Income_Formatted"]
+    ["Zipcode", "PIR", "geometry", "Median_Price_Formatted", "Household_Median_Income_Formatted"]
 ].copy()
 
 geojson_map = {
@@ -124,6 +129,7 @@ geojson_map = {
             "properties": {
                 "Zipcode": row.Zipcode,
                 "PIR": row.PIR,
+                "Median_Price_Formatted": row.Median_Price_Formatted,
                 "Household_Median_Income_Formatted": row.Household_Median_Income_Formatted,
             },
         }
@@ -240,8 +246,8 @@ folium.GeoJson(
         "fillOpacity": 0.7,
     },
     tooltip=folium.GeoJsonTooltip(
-        fields=["Zipcode", "PIR", "Household_Median_Income_Formatted"],
-        aliases=["Zipcode", "Price to Income Ratio", "Median Income"]
+        fields=["Zipcode", "PIR", "Median_Price_Formatted", "Household_Median_Income_Formatted"],
+        aliases=["Zipcode", "Price to Income Ratio", "Median House Price", "Median Income"]
     )
 ).add_to(map)
 
