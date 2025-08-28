@@ -56,12 +56,12 @@ def load_zip_analysis():
     # include formatted median income field for map viz
     df["Median_Price_Formatted"] = df[
         "Median_Price"
-    ].apply(lambda x: "$" + format(x, ","))
+    ].apply(lambda x: "$" + format(int(x), ","))
 
     # include formatted median home proce field for map viz
     df["Household_Median_Income_Formatted"] = df[
         "Household_Median_Income"
-    ].apply(lambda x: "$" + format(x, ","))
+    ].apply(lambda x: "$" + format(int(x), ","))
     
     return df
 
