@@ -359,7 +359,7 @@ with tab1:
         Affordability is determined using the median household income of each zipcode (sourced from US Census). 
     
         - **Affordable Price** = Zipcode Median Income x 3
-        - **Affordability Gap** = House Price - Affordable Price
+        - **Affordability Gap** = House Price - Affordable Price (Value of $0 indicates house is affordable)
         - **Price to Income Ratio (PIR)** = Median House Price in that Zipcode / Median Income in that Zipcode
         - **Red Pins** indicate unaffordable homes.
         - **Green Pins** indicate affordable homes.
