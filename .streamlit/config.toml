@@ -4,3 +4,6 @@ primaryColor="#1DB954"         # green accent
 backgroundColor="#000000"      # black background
 secondaryBackgroundColor="#1a1a1a"
 textColor="#ffffff"
+
+[server]
+fileWatcherType = "poll" #prevents issue of streamlit reaching limit for inotify
