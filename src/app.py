@@ -312,7 +312,7 @@ with tab1:
         """
     
         for _, row in df_most_aff.iterrows():
-            insights_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.1f}</li>"
+            insights_html += f"<li><b>{row.Zipcode}</b> — Price to Income Ratio = {row.PIR:,.1f}</li>"
         
         insights_html += """
             </ul>
@@ -339,7 +339,7 @@ with tab1:
         """
     
         for _, row in df_least_aff.iterrows():
-            insights_html += f"<li><b>Zip {row.Zipcode}</b> — Price Income Ratio = {row.PIR:,.1f}</li>"
+            insights_html += f"<li><b>{row.Zipcode}</b> — Price to Income Ratio = {row.PIR:,.1f}</li>"
     
         insights_html += """
             </ul>
