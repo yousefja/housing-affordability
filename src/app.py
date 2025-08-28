@@ -361,9 +361,30 @@ with tab1:
     
     # padding under summary cards
     st.markdown('</div>', unsafe_allow_html=True)
-        
-# st.markdown("<br>", unsafe_allow_html=True)  # Add some vertical space
-# st.markdown("<div style='height:5px'></div>", unsafe_allow_html=True)
+
+# --------- CHARTS ---------
+
+with tab2:
+    st.markdown(
+        """
+        <div style='text-align: center; padding: 50px; font-size: 24px; font-weight: bold; color: gray;'>
+            🚧 Charts Coming Soon 🚧
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# --------- DATA TABLE ---------
+
+with tab3:
+    st.markdown(
+        """
+        <div style='text-align: center; padding: 50px; font-size: 24px; font-weight: bold; color: gray;'>
+            🚧 Data Table Coming Soon 🚧
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # ------- FOOTER -------
 
