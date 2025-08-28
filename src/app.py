@@ -363,8 +363,6 @@ with tab1:
         - **Price to Income Ratio (PIR)** = Median House Price in that Zipcode / Median Income in that Zipcode
         - **Red Pins** indicate unaffordable homes.
         - **Green Pins** indicate affordable homes.
-    
-        Data is updated weekly.
         """
         )
         
