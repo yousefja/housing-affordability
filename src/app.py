@@ -161,9 +161,13 @@ tab1, tab2, tab3 = st.tabs(["🗺 Map View", "📊 Charts", "📋 Data Table"])
 
 # ------- FILTERS -------
 
+# vertical spacing
+st.sidebar.write("")
+st.sidebar.write("")
+
 st.sidebar.header("Filters")
 
-# space
+# vertical spacing
 st.sidebar.write("")
 st.sidebar.write("")
 
@@ -171,7 +175,7 @@ st.sidebar.write("")
 show_affordable = st.sidebar.checkbox("Show Affordable Homes", value=True)
 show_unaffordable = st.sidebar.checkbox("Show Unaffordable Homes", value=True)
 
-# space
+# vertical spacing
 st.sidebar.write("")
 st.sidebar.write("")
 
