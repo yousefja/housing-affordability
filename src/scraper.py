@@ -293,18 +293,23 @@ def process_listing_data(listing_data):
         df_listings["Specs"].str.split("\n").tolist()
     )
 
-    # remove 'Listing by" substring
-    df_listings["Listed_By"] = df_listings["Listed_By"].apply(
-        lambda x: x.split("Listing by")[1].strip()
-    )
-
-    # seperate listing agency from phone number
-    df_listings[["Listing_Agency", "Agency_Contact"]] = (
-        df_listings["Listed_By"].str.split("(").tolist()
-    )
-    df_listings["Agency_Contact"] = df_listings["Agency_Contact"].apply(
-        lambda x: "(" + x
-    )
+    # this assumes same format for all listing entities, if not, save raw text
+    try:
+        # remove 'Listing by" substring
+        df_listings["Listed_By"] = df_listings["Listed_By"].apply(
+            lambda x: x.split("Listing by")[1].strip()
+        )
+    
+        # seperate listing agency from phone number
+        df_listings[["Listing_Agency", "Agency_Contact"]] = (
+            df_listings["Listed_By"].str.split("(").tolist()
+        )
+        df_listings["Agency_Contact"] = df_listings["Agency_Contact"].apply(
+            lambda x: "(" + x
+        )
+    except Exception as e:
+        print(f"Issue parsing listing entity: {e}")
+        df_listings['Listing_Agency'] = df_listings['Listed_By']
 
     # get zip code column
     df_listings["Zipcode"] = df_listings["Address"].apply(lambda x: x.split()[-1])
