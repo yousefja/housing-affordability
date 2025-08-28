@@ -18,8 +18,8 @@ from config import (
     HOUSING_URL,
     MAX_LISTINGS,
     PATH_TO_INCOME_DATA,
-    #PATH_TO_OUTPUT_ZIP_METRICS,
-    #PATH_TO_OUTPUT_HOUSE_METRICS,
+    # PATH_TO_OUTPUT_ZIP_METRICS,
+    # PATH_TO_OUTPUT_HOUSE_METRICS,
     HOUSE_TABLE_NAME,
     ZIP_TABLE_NAME,
     BASE_ID,
@@ -28,7 +28,7 @@ from config import (
 
 
 def main(headless=True):
-    
+
     # scrape, process, and output listing data
     print("Initiating webdriver...")
     driver = instantiate_driver(headless)
@@ -77,7 +77,7 @@ def main(headless=True):
         AIRTABLE_ACCESS_TOKEN, BASE_ID, HOUSE_TABLE_NAME, df_house_level_analysis
     )
     print("Upload Successful!")
-    
+
     print("Uploading zip-level data to Airtable...")
     upload_to_airtable(
         AIRTABLE_ACCESS_TOKEN, BASE_ID, ZIP_TABLE_NAME, df_zip_level_analysis

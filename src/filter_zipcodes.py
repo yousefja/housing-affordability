@@ -16,14 +16,13 @@ from config import NY_COUNTY_ZIPS, CENSUS_ZIP_SHAPEFILE_PATH, PATH_TO_ZIP_SHAPEF
 
 
 def filter_zipcodes():
-    
+
     # load census shapefile
     gdf = gpd.read_file(CENSUS_ZIP_SHAPEFILE_PATH)
-    
+
     # filter for erie county zips
     gdf.GEOID20 = gdf.GEOID20.astype(int)
     gdf = gdf[gdf.GEOID20.isin(NY_COUNTY_ZIPS)]
-    
-    # output filtered shapefile 
-    gdf.to_file(PATH_TO_ZIP_SHAPEFILE, driver='ESRI Shapefile')
-    
+
+    # output filtered shapefile
+    gdf.to_file(PATH_TO_ZIP_SHAPEFILE, driver="ESRI Shapefile")

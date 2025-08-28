@@ -10,7 +10,6 @@ Usage:       --
 """
 
 import time
-import random
 import traceback
 import requests
 import numpy as np
@@ -101,7 +100,7 @@ def address_to_lat_lng(parsed_address):
         )
         response.raise_for_status()
         data = response.json()
-        time.sleep(1) # wait 1 sec bw api calls as per openstreemaps policy
+        time.sleep(1)  # wait 1 sec bw api calls as per openstreemaps policy
         if data:
             return [data[0]["lat"], data[0]["lon"]]
         else:
@@ -110,7 +109,7 @@ def address_to_lat_lng(parsed_address):
     except Exception:
         print(f"Error retrieving coordinates for adress: {parsed_address}")
         print(traceback.format_exc())
-        time.sleep(1) # wait 1 sec bw api calls as per openstreemaps policy
+        time.sleep(1)  # wait 1 sec bw api calls as per openstreemaps policy
         return None
 
 
@@ -125,7 +124,7 @@ def upload_to_airtable(access_token, base_id, table_name, df):
     table_name = TABLE_NAME
     df=df_house_level_analysis.copy()
     """
-    
+
     if not access_token or not base_id:
         raise Exception("Airtable secrets not set")
 

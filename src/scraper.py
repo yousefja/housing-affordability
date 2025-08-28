@@ -7,8 +7,6 @@ Created:     2025-07-24
 Modified:    2025-08-22
 """
 
-import os
-import sys
 import time
 import random
 import numpy as np
@@ -21,19 +19,15 @@ from selenium_stealth import stealth
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-
 ###############
 # DATA SCRAPING
 ###############
 
 
-import random
-import time
-
 def human_scroll(driver, step=200, delay=0.5, up_chance=0.15, timeout=30):
     """
     Scrolls down smoothly with jitter, occasionally scrolling up.
-    
+
     step: average px per scroll
     delay: average delay between steps
     up_chance: probability to scroll up instead of down
@@ -87,7 +81,7 @@ def instantiate_driver(headless=True):
     # set driver configurations
     options = uc.ChromeOptions()
     if headless:
-        options.add_argument("--headless=new")        # headless in container
+        options.add_argument("--headless=new")  # headless in container
     options.add_argument("--window-size=1920,1080")
     options.add_argument(f"user-agent={user_agent}")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -95,8 +89,8 @@ def instantiate_driver(headless=True):
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--lang=en-US,en;q=0.9")
 
-    # instantiate driver     
-    '''
+    # instantiate driver
+    """
     try:
         # if running in container, this env variable will be set
         chrome_driver_path = os.getenv("CHROME_PATH")
@@ -106,27 +100,29 @@ def instantiate_driver(headless=True):
     except Exception:
         # if running locally, auto detect chrome driver
         print("No path found for chrome driver, trying auto detect.")
-    '''
-    
+    """
+
     ############
-    # TODO: Does this work no matter what? 
+    # TODO: Does this work no matter what?
     ############
     driver = uc.Chrome(options=options)
-        
+
     # apply stealth to driver
-    stealth(driver,
-            languages=["en-US","en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
-            fix_hairline=True)
-            
+    stealth(
+        driver,
+        languages=["en-US", "en"],
+        vendor="Google Inc.",
+        platform="Win32",
+        webgl_vendor="Intel Inc.",
+        renderer="Intel Iris OpenGL Engine",
+        fix_hairline=True,
+    )
+
     return driver
 
 
 def scrape_listings(driver, housing_listings_url, max_listings, timeout=20):
-    '''
+    """
     Scrape property listings in a human-like way to avoid bot detection
 
     Parameters
@@ -138,27 +134,27 @@ def scrape_listings(driver, housing_listings_url, max_listings, timeout=20):
     Returns
     -------
     listing_data : dict
-    '''
-    
+    """
+
     # open property listings url
     driver.get(housing_listings_url)
-    
+
     # check whether the web page was properly loaded
     print("Current page title:", driver.title)
     print("Current URL:", driver.current_url)
-    
+
     # human wait before interacting with page
     time.sleep(random.uniform(1.5, 3.0))
 
     # initiate loop tools
     master_listing_data = []
     page_num = 0
-    
+
     # pull and parse up to <MAX_LISTINGS> number of homes
     while len(master_listing_data) < max_listings:
-        
+
         page_num = page_num + 1
-        
+
         # instantiate human-like movement object (once per page)
         actions = webdriver.ActionChains(driver)
 
@@ -176,11 +172,13 @@ def scrape_listings(driver, housing_listings_url, max_listings, timeout=20):
 
         # scrape data from listings
         parsed_data = extract_data(scraped_listings)
-        print(f"Scraped {len(parsed_data)} / {len(scraped_listings)} listings from page {page_num}")
+        print(
+            f"Scraped {len(parsed_data)} / {len(scraped_listings)} listings from page {page_num}"
+        )
 
         # add parsed listings to master
         master_listing_data.extend(parsed_data)
-        
+
         # gentle scroll to simulate reading
         print("Performing human-like scroll")
         human_scroll(driver)
@@ -190,14 +188,16 @@ def scrape_listings(driver, housing_listings_url, max_listings, timeout=20):
             next_btn = driver.find_element(By.CLASS_NAME, "PageArrow__direction--next")
             # scroll to next button before clicking
             driver.execute_script(
-                "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", 
-                next_btn
+                "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
+                next_btn,
             )
             # wait after scrolling
             time.sleep(random.uniform(0.5, 1.5))
-    
+
             # click button with human-like behavior
-            actions.move_to_element(next_btn).pause(random.uniform(0.1, 0.5)).click().perform()
+            actions.move_to_element(next_btn).pause(
+                random.uniform(0.1, 0.5)
+            ).click().perform()
 
         except Exception as e:
             print(f"No more pages, or error locating next button: {e}")
@@ -231,7 +231,7 @@ def extract_data(scraped_listings, verbose=False):
     # extract desired fields from each listing
     parsed_listing_data = []
     for listing in scraped_listings:
-        
+
         # parse listing attributes
         try:
             price = listing.find_element(
@@ -271,12 +271,11 @@ def extract_data(scraped_listings, verbose=False):
                 print("Skipping this listing due to the following error: ", e)
             else:
                 continue
-        
+
         # small random delay to mimic human behavior
         time.sleep(random.uniform(0.05, 0.15))
 
     return parsed_listing_data
-
 
 
 #################
