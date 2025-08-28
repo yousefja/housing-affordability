@@ -361,6 +361,36 @@ with tab1:
     
     # padding under summary cards
     st.markdown('</div>', unsafe_allow_html=True)
+    
+    # ------- MAP FOOTER -------
+
+    with st.expander("ℹ️ About this dashboard"):
+        st.markdown(
+            """
+        Affordability is determined using the median household income of each zipcode (sourced from US Census). 
+    
+        - **Affordable Price** = Median Income x 3
+        - **Affordability Gap** = House Price - Affordable Price
+        - **Price to Income Ratio (PIR)** = Median House Price / Median Income
+        - **Red Pins** indicate unaffordable homes.
+        - **Green Pins** indicate affordable homes.
+    
+        Data is updated weekly.
+        """
+        )
+        
+    # Display last refreshed timestamp at top of page
+    last_updated = df_house_analysis['Created'].iloc[0][:-5]
+    last_updated  = last_updated.replace("T", " ")
+    last_updated = datetime.strptime(last_updated, "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%y - %I:%M %p")
+    st.markdown(
+        f"""
+                <div style='text-align: right'>
+                    🕒 <b>Data Last Updated:<b> {last_updated}
+                </div>
+                """,
+        unsafe_allow_html=True,
+    )
 
 # --------- CHARTS ---------
 
@@ -385,33 +415,3 @@ with tab3:
         """,
         unsafe_allow_html=True,
     )
-
-# ------- FOOTER -------
-
-with st.expander("ℹ️ About this dashboard"):
-    st.markdown(
-        """
-    Affordability is determined using the median household income of each zipcode (sourced from US Census). 
-
-    - **Affordable Price** = Median Income x 3
-    - **Affordability Gap** = House Price - Affordable Price
-    - **Price to Income Ratio (PIR)** = Median House Price / Median Income
-    - **Red Pins** indicate unaffordable homes.
-    - **Green Pins** indicate affordable homes.
-
-    Data is updated weekly.
-    """
-    )
-    
-# Display last refreshed timestamp at top of page
-last_updated = df_house_analysis['Created'].iloc[0][:-5]
-last_updated  = last_updated.replace("T", " ")
-last_updated = datetime.strptime(last_updated, "%Y-%m-%d %H:%M:%S").strftime("%m/%d/%y - %I:%M %p")
-st.markdown(
-    f"""
-            <div style='text-align: right'>
-                🕒 <b>Data Last Updated:<b> {last_updated}
-            </div>
-            """,
-    unsafe_allow_html=True,
-)
