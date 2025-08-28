@@ -310,6 +310,7 @@ def process_listing_data(listing_data):
     except Exception as e:
         print(f"Issue parsing listing entity: {e}")
         df_listings['Listing_Agency'] = df_listings['Listed_By']
+        df_listings['Agency_Contact'] = None
 
     # get zip code column
     df_listings["Zipcode"] = df_listings["Address"].apply(lambda x: x.split()[-1])
