@@ -243,7 +243,7 @@ map = folium.Map(location=[42.9159281, -78.7487142], zoom_start=11)
 colormap = cm.LinearColormap(
     colors=["green", "yellow", "red"],
     vmin=df_zip_analysis["PIR"].min(),
-    vmax=6.5,  # NOTE!! This value is somewhat arbitrary, based on what is an "affordable" PIR from research
+    vmax=7,  # NOTE!! This value is somewhat arbitrary, based on what is an "affordable" PIR from research
     caption="Price to Income Ratio (Affordability Measure)",
 )
 
